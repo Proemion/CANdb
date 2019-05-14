@@ -8,12 +8,13 @@
 
 enum class CANsignalType { Int, Float, String };
 enum class CANsignalMuxType { NotMuxed = 0, Muxer, Muxed };
+enum class CANsignalEndianness { BigEndianMotorola = 0, LittleEndianIntel = 1 };
 
 struct CANsignal {
     std::string signal_name;
     std::uint8_t startBit;
     std::uint8_t signalSize;
-    std::uint8_t byteOrder;
+    CANsignalEndianness endianness;
     bool valueSigned;
     float factor;
     float offset;

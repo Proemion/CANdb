@@ -250,7 +250,7 @@ bool DBCParser::parse(const std::string& data) noexcept
                 static_cast<int>(sigMuxType), sigMuxNdx);
         }
 
-        auto byteOrder = take_back(numbers);
+        auto endianness = take_back(numbers);
         auto signalSize = take_back(numbers);
         auto startBit = take_back(numbers);
 
@@ -259,7 +259,7 @@ bool DBCParser::parse(const std::string& data) noexcept
         signals.push_back(
             CANsignal{ signal_name, static_cast<std::uint8_t>(startBit),
                 static_cast<std::uint8_t>(signalSize),
-                static_cast<std::uint8_t>(byteOrder), valueSigned,
+                static_cast<CANsignalEndianness>(endianness), valueSigned,
                 static_cast<float>(factor), static_cast<float>(offset),
                 static_cast<float>(min), static_cast<float>(max), unit,
                 receivers, sigMuxType, sigMuxNdx });

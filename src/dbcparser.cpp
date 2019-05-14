@@ -160,7 +160,6 @@ bool DBCParser::parse(const std::string& data) noexcept
 
     parser["number"] = [&numbers](const peg::SemanticValues& sv) {
         try {
-            cdb_debug("Found number {}", sv.token());
             auto number = std::stoull(sv.token(), nullptr, 10);
             cdb_trace("Found number {}", number);
             numbers.push_back(number);

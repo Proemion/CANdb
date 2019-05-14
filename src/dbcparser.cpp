@@ -280,5 +280,30 @@ bool DBCParser::parse(const std::string& data) noexcept
         ecu_tokens.clear();
     };
 
+    parser["cm_bo"] = [&numbers, &phrases,
+                           this] (const peg::SemanticValues& sv) {
+        cdb_debug("Found cm_bo {}", sv.token());
+        auto comment = take_back(phrases);
+        auto id = static_cast<std::uint32_t>(take_back(numbers));
+        setMessageComment(can_db, id, comment);
+        cdb_debug("Message comment id={}, comment={}", id, comment);
+        phrases.clear();
+        numbers.clear();
+    };
+
+    parser["cm_sg"] = [&numbers, &idents, &phrases,
+                           this](const peg::SemanticValues& sv) {
+        cdb_debug("Found cm_sg {}", sv.token());
+        auto comment = take_back(phrases);
+        auto name = take_back(idents);
+        auto id = static_cast<std::uint32_t>(take_back(numbers));
+        setSignalComment(can_db, id, name, comment);
+        cdb_debug("Signal comment id={}, name={}, comment={}", id, name,
+            comment);
+        phrases.clear();
+        numbers.clear();
+        idents.clear();
+    };
+
     return parser.parse(noTabsData.c_str());
 }

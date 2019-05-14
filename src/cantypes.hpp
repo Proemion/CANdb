@@ -7,6 +7,7 @@
 #include <vector>
 
 enum class CANsignalType { Int, Float, String };
+enum class CANsignalMuxType { NotMuxed = 0, Muxer, Muxed };
 
 struct CANsignal {
     std::string signal_name;
@@ -20,7 +21,7 @@ struct CANsignal {
     float max;
     std::string unit;
     std::vector<std::string> receivers;
-    std::string mux = "";
+    CANsignalMuxType muxType{ CANsignalMuxType::NotMuxed };
     std::uint8_t muxNdx{ 0 };
 
     bool operator==(const CANsignal& rhs) const

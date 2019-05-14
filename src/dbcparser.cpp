@@ -99,7 +99,7 @@ bool DBCParser::parse(const std::string& data) noexcept
     std::deque<std::string> idents, signs, ecu_tokens;
     std::deque<std::int64_t> numbers;
 
-    bool mux = false;
+    CANsignalMuxType muxType = CANsignalMuxType::NotMuxed;
     int muxNdx = -1;
 
     using PhrasePair = std::pair<std::uint32_t, std::string>;
@@ -185,15 +185,16 @@ bool DBCParser::parse(const std::string& data) noexcept
         phrasesPairs.clear();
     };
 
-    parser["mux"] = [&mux](const peg::SemanticValues&) { mux = true; };
-    parser["mux_ndx"] = [&muxNdx](const peg::SemanticValues& sv) {
+    parser["muxer"] = [&muxType](const peg::SemanticValues&)
+        { muxType = CANsignalMuxType::Muxer; };
+    parser["mux_ndx"] = [&muxType, &muxNdx](const peg::SemanticValues& sv) {
+        muxType = CANsignalMuxType::Muxed;
         muxNdx = std::stoi(sv.token());
     };
 
-    std::string muxName;
     std::vector<CANsignal> signals;
-    parser["message"] = [this, &numbers, &signals, &idents, &mux, &muxNdx,
-                            &muxName, &ecu_tokens](const peg::SemanticValues&) {
+    parser["message"] = [this, &numbers, &signals, &idents, &muxType,
+                            &muxNdx, &ecu_tokens](const peg::SemanticValues&) {
         cdb_debug(
             "Found a message {} signals = {}", idents.size(), signals.size());
         if (numbers.size() < 2 || idents.size() < 2) {
@@ -211,15 +212,14 @@ bool DBCParser::parse(const std::string& data) noexcept
         signals.clear();
         numbers.clear();
         idents.clear();
-        mux = false;
+        muxType = CANsignalMuxType::NotMuxed;
         muxNdx = -1;
-        muxName = "";
         ecu_tokens.clear();
     };
 
     parser["signal"] = [&idents, &numbers, &phrases, &signals, &signs,
-                           &ecu_tokens, &mux, &muxNdx,
-                           &muxName](const peg::SemanticValues& sv) {
+                           &ecu_tokens, &muxType,
+                           &muxNdx](const peg::SemanticValues& sv) {
         cdb_debug("Found signal {}", sv.token());
 
         const std::vector<std::string> receivers{ ecu_tokens.begin(),
@@ -232,14 +232,22 @@ bool DBCParser::parse(const std::string& data) noexcept
         auto factor = take_back(numbers);
         auto valueSigned = take_back(signs) == "-";
 
-        std::string sigMuxName;
-        std::uint8_t sigMuxNdx = 0xff;
+        CANsignalMuxType sigMuxType;
+        boost::optional<std::uint16_t> sigMuxNdx;
 
-        if (muxNdx != -1) {
-            sigMuxName = muxName;
-            sigMuxNdx = static_cast<std::uint8_t>(muxNdx);
-            muxNdx = -1;
-            cdb_debug("Signal: muxName {}, muxNdx {}", muxName, sigMuxNdx);
+        if (muxType == CANsignalMuxType::Muxed) {
+            sigMuxType = CANsignalMuxType::Muxed;
+            sigMuxNdx = static_cast<std::uint16_t>(muxNdx);
+            cdb_debug("Muxed signal: sigMuxType {}, sigMuxNdx {}",
+                static_cast<int>(sigMuxType), sigMuxNdx);
+        } else if (muxType == CANsignalMuxType::Muxer) {
+            sigMuxType = CANsignalMuxType::Muxer;
+            cdb_debug("Signal muxer: sigMuxType {}, sigMuxNdx {}",
+                static_cast<int>(sigMuxType), sigMuxNdx);
+        } else {
+            sigMuxType = CANsignalMuxType::NotMuxed;
+            cdb_debug("Unmuxed signal: sigMuxType {}, sigMuxNdx {}",
+                static_cast<int>(sigMuxType), sigMuxNdx);
         }
 
         auto byteOrder = take_back(numbers);
@@ -248,19 +256,13 @@ bool DBCParser::parse(const std::string& data) noexcept
 
         auto signal_name = take_back(idents);
 
-        if (mux) {
-            sigMuxName = muxName;
-            sigMuxNdx = static_cast<std::uint8_t>(muxNdx);
-            muxNdx = -1;
-        }
-
         signals.push_back(
             CANsignal{ signal_name, static_cast<std::uint8_t>(startBit),
                 static_cast<std::uint8_t>(signalSize),
                 static_cast<std::uint8_t>(byteOrder), valueSigned,
                 static_cast<float>(factor), static_cast<float>(offset),
                 static_cast<float>(min), static_cast<float>(max), unit,
-                receivers, sigMuxName, sigMuxNdx });
+                receivers, sigMuxType, sigMuxNdx });
 
         ecu_tokens.clear();
     };

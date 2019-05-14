@@ -264,6 +264,8 @@ bool DBCParser::parse(const std::string& data) noexcept
                 static_cast<float>(min), static_cast<float>(max), unit,
                 receivers, sigMuxType, sigMuxNdx });
 
+        muxType = CANsignalMuxType::NotMuxed;
+        muxNdx = -1;
         ecu_tokens.clear();
     };
 

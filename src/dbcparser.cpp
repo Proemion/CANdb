@@ -10,6 +10,10 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/split.hpp>
 
+namespace {
+    const std::string ECU_MAGIC_NAME_NONE{ "Vector__XXX" };
+}
+
 template <typename T> auto take_first(T& container) -> typename T::value_type
 {
     if (container.empty()) {
@@ -205,6 +209,10 @@ bool DBCParser::parse(const std::string& data) noexcept
         auto ecu = take_back(idents);
         auto name = take_back(idents);
 
+        if (ecu == ECU_MAGIC_NAME_NONE) {
+            ecu.clear();
+        }
+
         const CANmessage msg{ static_cast<std::uint32_t>(id), name,
             static_cast<std::uint32_t>(dlc), ecu };
         cdb_debug("Found a message with id = {}", msg.id);
@@ -222,8 +230,10 @@ bool DBCParser::parse(const std::string& data) noexcept
                            &muxNdx](const peg::SemanticValues& sv) {
         cdb_debug("Found signal {}", sv.token());
 
-        const std::vector<std::string> receivers{ ecu_tokens.begin(),
-            ecu_tokens.end() };
+        std::vector<std::string> receivers;
+        std::copy_if (ecu_tokens.begin(), ecu_tokens.end(),
+            std::back_inserter(receivers),
+            [](const std::string& ecu){ return ecu != ECU_MAGIC_NAME_NONE; });
         auto unit = take_back(phrases);
 
         auto max = take_back(numbers);

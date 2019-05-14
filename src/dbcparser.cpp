@@ -305,6 +305,9 @@ bool DBCParser::parse(const std::string& data) noexcept
         idents.clear();
     };
 
+    // TODO: HEX forms of BA_DEF_ BO_ and BA_DEF_ SG_
+    // TODO: VAL_ entries
+
     std::uint32_t genMsgCycleTimeMin{ 0 };
     std::uint32_t genMsgCycleTimeMax{ 0 };
     parser["ba_def_bo_int_num"] = [&phrases, &numbers, &genMsgCycleTimeMin,

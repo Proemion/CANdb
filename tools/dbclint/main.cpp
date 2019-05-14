@@ -119,7 +119,8 @@ int main(int argc, char* argv[])
     ("d, dump-peg", "Dump DBC grammar")
     ("m, messages", "Dump messages from DBC")
     ("t, tree", "Dump messages and signals")
-    ("f, filter", "filter by messages/signals", cxxopts::value<std::string>(regex)->default_value(".*"), "regexp")
+    ("f, filter", "filter by messages/signals",
+        cxxopts::value<std::string>(regex)->default_value(".*"), "regexp")
     ("h,help", "show help message");
     // clang-format on
 

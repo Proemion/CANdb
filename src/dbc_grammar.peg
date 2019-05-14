@@ -13,8 +13,8 @@ message                 <- 'BO_' s* number s* TOKEN ':' s number s TOKEN _ signa
 bo_tx_bu                <- < 'BO_TX_BU_' s* number s* ':' s* ECU_TOKEN (',' ECU_TOKEN)* ';' > NewLine
 cm                      <- < 'CM_' s* phrase > ';' NewLine
 cm_bu                   <- < 'CM_' s* 'BU_' s* TOKEN s* phrase > ';' NewLine
-cm_bo                   <- < 'CM_' s* 'BO_' s* integer s* phrase > ';' NewLine
-cm_sg                   <- < 'CM_' s* 'SG_' s* integer s* TOKEN s* phrase > ';' NewLine*
+cm_bo                   <- < 'CM_' s* 'BO_' s* number s* phrase > ';' NewLine
+cm_sg                   <- < 'CM_' s* 'SG_' s* number s* TOKEN s* phrase > ';' NewLine*
 ba_def_str              <- (< 'BA_DEF_' s* (('BO_' / 'SG_' / 'BU_') s*)? phrase s* 'STRING' s* ';' > (NewLine / s* comment) ) / comment
 ba_def_num              <- (< 'BA_DEF_' s* (('BO_' / 'SG_' / 'BU_') s*)? phrase s* ('INT' / 'HEX') s* number s* number ';' > (NewLine / s* comment) ) / comment
 ba_def_enum             <- (< 'BA_DEF_' s* (('BO_' / 'SG_' / 'BU_') s*)? phrase s* 'ENUM' s* ENUM_VAL';' > (NewLine / s* comment) ) / comment

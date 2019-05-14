@@ -19,7 +19,7 @@ struct CANsignal {
     float min;
     float max;
     std::string unit;
-    std::vector<std::string> receiver;
+    std::vector<std::string> receivers;
     std::string mux = "";
     std::uint8_t muxNdx{ 0 };
 

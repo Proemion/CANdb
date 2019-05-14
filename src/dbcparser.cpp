@@ -221,7 +221,7 @@ bool DBCParser::parse(const std::string& data) noexcept
                            &muxName](const peg::SemanticValues& sv) {
         cdb_debug("Found signal {}", sv.token());
 
-        const std::vector<std::string> receiver{ ecu_tokens.begin(),
+        const std::vector<std::string> receivers{ ecu_tokens.begin(),
             ecu_tokens.end() };
         auto unit = take_back(phrases);
 
@@ -259,7 +259,7 @@ bool DBCParser::parse(const std::string& data) noexcept
                 static_cast<std::uint8_t>(byteOrder), valueSigned,
                 static_cast<float>(factor), static_cast<float>(offset),
                 static_cast<float>(min), static_cast<float>(max), unit,
-                receiver, sigMuxName, sigMuxNdx });
+                receivers, sigMuxName, sigMuxNdx });
     };
 
     return parser.parse(noTabsData.c_str());

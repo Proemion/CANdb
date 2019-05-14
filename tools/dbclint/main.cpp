@@ -124,7 +124,45 @@ int main(int argc, char* argv[])
     // clang-format on
 
     try {
-        options.parse(argc, argv);
+        const auto res = options.parse(argc, argv);
+
+        if (res.count("h") != 0) {
+            std::cout << options.help({ "" }) << std::endl;
+            return EXIT_SUCCESS;
+        }
+
+        if (res.count("d") != 0) {
+            std::cout << dbc_grammar << std::endl;
+            return EXIT_SUCCESS;
+        }
+
+        if (res.count("i") == 0) {
+            std::cerr << options.help({ "" }) << std::endl;
+            return EXIT_FAILURE;
+        }
+
+        bool success = false;
+        try {
+            CANdb::DBCParser parser;
+            const auto file = res["i"].as<std::string>();
+            success = parser.parse(loadDBCFile(file));
+
+            if (success) {
+                std::cout << fmt::format("DBC file {} successfully parsed", file)
+                          << std::endl;
+            }
+            if (res.count("m")) {
+                std::cout << dumpMessages(parser.getDb(), regex);
+            } else if (res.count("t")) {
+                std::cout << dumpMessages(parser.getDb(), regex, true);
+            }
+
+        } catch (const std::exception& ex) {
+            std::cerr << ex.what() << std::endl;
+            return EXIT_FAILURE;
+        }
+
+        return success ? EXIT_SUCCESS : EXIT_FAILURE;
     } catch (const cxxopts::option_not_exists_exception& ex) {
         std::cerr << ex.what() << std::endl;
         std::cerr << options.help({ "" }) << std::endl;
@@ -134,44 +172,4 @@ int main(int argc, char* argv[])
         std::cerr << options.help({ "" }) << std::endl;
         return EXIT_FAILURE;
     }
-
-    const auto res = options.parse(argc, argv);
-
-    if (res.count("h") != 0) {
-        std::cout << options.help({ "" }) << std::endl;
-        return EXIT_SUCCESS;
-    }
-
-    if (res.count("d") != 0) {
-        std::cout << dbc_grammar << std::endl;
-        return EXIT_SUCCESS;
-    }
-
-    if (res.count("i") == 0) {
-        std::cerr << options.help({ "" }) << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    bool success = false;
-    try {
-        CANdb::DBCParser parser;
-        const auto file = res["i"].as<std::string>();
-        success = parser.parse(loadDBCFile(file));
-
-        if (success) {
-            std::cout << fmt::format("DBC file {} successfully parsed", file)
-                      << std::endl;
-        }
-        if (res.count("m")) {
-            std::cout << dumpMessages(parser.getDb(), regex);
-        } else if (res.count("t")) {
-            std::cout << dumpMessages(parser.getDb(), regex, true);
-        }
-
-    } catch (const std::exception& ex) {
-        std::cerr << ex.what() << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }

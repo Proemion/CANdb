@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <boost/optional.hpp>
 
 enum class CANsignalType { Int, Float, String };
 enum class CANsignalMuxType { NotMuxed = 0, Muxer, Muxed };
@@ -23,7 +24,7 @@ struct CANsignal {
     std::string unit;
     std::vector<std::string> receivers;
     CANsignalMuxType muxType{ CANsignalMuxType::NotMuxed };
-    std::uint8_t muxNdx{ 0 };
+    boost::optional<std::uint16_t> muxNdx{ boost::optional<std::uint16_t>() }; // 16-bit for better debug printing
 
     bool operator==(const CANsignal& rhs) const
     {

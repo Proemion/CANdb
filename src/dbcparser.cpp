@@ -9,6 +9,7 @@
 #include <boost/algorithm/string/erase.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/split.hpp>
+#include <boost/optional/optional_io.hpp>
 
 namespace {
     const std::string ECU_MAGIC_NAME_NONE{ "Vector__XXX" };

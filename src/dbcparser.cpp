@@ -305,5 +305,126 @@ bool DBCParser::parse(const std::string& data) noexcept
         idents.clear();
     };
 
+    std::uint32_t genMsgCycleTimeMin{ 0 };
+    std::uint32_t genMsgCycleTimeMax{ 0 };
+    parser["ba_def_bo_int_num"] = [&phrases, &numbers, &genMsgCycleTimeMin,
+                                       &genMsgCycleTimeMax]
+                                       (const peg::SemanticValues& sv) {
+        cdb_debug("Found ba_def_bo_int_num {}", sv.token());
+        auto max = static_cast<std::uint32_t>(take_back(numbers));
+        auto min = static_cast<std::uint32_t>(take_back(numbers));
+        auto attributeName = take_back(phrases);
+        if (attributeName == "GenMsgCycleTime") {
+            genMsgCycleTimeMin = min;
+            genMsgCycleTimeMax = max;
+            cdb_debug("Found GenMsgCycleTime range: {}-{}",
+                genMsgCycleTimeMin,
+                genMsgCycleTimeMax);
+        }
+        phrases.clear();
+        numbers.clear();
+    };
+
+    std::uint32_t genSigStartValueMin{ 0 };
+    std::uint32_t genSigStartValueMax{ 0 };
+    parser["ba_def_sg_int_num"] = [&phrases, &numbers, &genSigStartValueMin,
+                                       &genSigStartValueMax]
+                                       (const peg::SemanticValues& sv) {
+        cdb_debug("Found ba_def_sg_int_num {}", sv.token());
+        auto max = static_cast<std::uint32_t>(take_back(numbers));
+        auto min = static_cast<std::uint32_t>(take_back(numbers));
+        auto attributeName = take_back(phrases);
+        if (attributeName == "GenSigStartValue") {
+            genSigStartValueMin = min;
+            genSigStartValueMax = max;
+            cdb_debug("Found GenSigStartValue range: {}-{}",
+                genSigStartValueMin,
+                genSigStartValueMax);
+        }
+        phrases.clear();
+        numbers.clear();
+    };
+
+    std::uint32_t genMsgCycleTimeDefault{ 0 };
+    std::uint32_t genSigStartValueDefault{ 0 };
+    parser["ba_def_def"] = [&phrases, &numbers,
+                                &genMsgCycleTimeDefault,
+                                &genSigStartValueDefault]
+                                (const peg::SemanticValues& sv) {
+        cdb_debug("Found ba_def_def {}", sv.token());
+        try {
+            auto value = static_cast<std::uint32_t>(take_back(numbers));
+            auto attributeName = take_back(phrases);
+            if (attributeName == "GenMsgCycleTime") {
+                genMsgCycleTimeDefault = value;
+                cdb_debug("Found default GenMsgCycleTime: {}",
+                    genMsgCycleTimeDefault);
+            } else if (attributeName == "GenSigStartValue") {
+                genSigStartValueDefault = value;
+                cdb_debug("Found default GenSigStartValue: {}",
+                    genSigStartValueDefault);
+            }
+        } catch (const std::exception &) {
+            cdb_debug("Ignoring potentially unsupported BA_DEF_DEF_");
+        }
+        phrases.clear();
+        numbers.clear();
+    };
+
+    std::map<std::uint32_t, std::uint32_t> msgCycleTimes;
+    parser["ba_bo"] = [&numbers, &phrases,
+                           &msgCycleTimes](const peg::SemanticValues& sv) {
+        cdb_debug("Found ba_bo {}", sv.token());
+        try {
+            auto cycleTime = static_cast<std::uint32_t>(take_back(numbers));
+            auto id = static_cast<std::uint32_t>(take_back(numbers));
+            auto attributeName = take_back(phrases);
+            if (attributeName == "GenMsgCycleTime") {
+                msgCycleTimes[id] = cycleTime;
+                cdb_debug("Found message cycle time id={}, time={}", id,
+                    cycleTime);
+            }
+        } catch (const std::exception &) {
+            cdb_debug("Ignoring potentially unsupported BA_ BO_");
+        }
+        phrases.clear();
+        numbers.clear();
+    };
+
+    std::map<std::uint32_t, std::tuple<std::string,
+        std::uint32_t>> sigStartValues;
+    parser["ba_sg"] = [&numbers, &idents, &phrases,
+                           &sigStartValues](const peg::SemanticValues& sv) {
+        cdb_debug("Found ba_sg {}", sv.token());
+        if (numbers.size() == 2) {
+            auto value = static_cast<std::uint32_t>(take_back(numbers));
+            auto name = take_back(idents);
+            auto id = static_cast<std::uint32_t>(take_back(numbers));
+            auto attributeName = take_back(phrases);
+            if (attributeName == "GenSigStartValue") {
+                sigStartValues[id] = { name, value };
+                cdb_debug("Found signal start value id={}, name={}, value={}",
+                    id, name, value);
+            }
+        } else if (phrases.size() == 2) {
+            auto value = take_back(phrases);
+            auto name = take_back(idents);
+            auto id = static_cast<std::uint32_t>(take_back(numbers));
+            auto attributeName = take_back(phrases);
+            if (attributeName == "GenSigStartValue") {
+                // TODO: support strings as signal start values
+                cdb_warn("String-based signal start values are not yet " \
+                    "supported.");
+                cdb_debug("Found signal start value id={}, name={}, value={}",
+                    id, name, value);
+            }
+        } else {
+            cdb_debug("Ignoring potentially unsupported BA_ SG_");
+        }
+        phrases.clear();
+        numbers.clear();
+        idents.clear();
+    };
+
     return parser.parse(noTabsData.c_str());
 }

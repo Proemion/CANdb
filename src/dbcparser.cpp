@@ -193,7 +193,7 @@ bool DBCParser::parse(const std::string& data) noexcept
     std::string muxName;
     std::vector<CANsignal> signals;
     parser["message"] = [this, &numbers, &signals, &idents, &mux, &muxNdx,
-                            &muxName](const peg::SemanticValues&) {
+                            &muxName, &ecu_tokens](const peg::SemanticValues&) {
         cdb_debug(
             "Found a message {} signals = {}", idents.size(), signals.size());
         if (numbers.size() < 2 || idents.size() < 2) {
@@ -214,6 +214,7 @@ bool DBCParser::parse(const std::string& data) noexcept
         mux = false;
         muxNdx = -1;
         muxName = "";
+        ecu_tokens.clear();
     };
 
     parser["signal"] = [&idents, &numbers, &phrases, &signals, &signs,
@@ -260,6 +261,8 @@ bool DBCParser::parse(const std::string& data) noexcept
                 static_cast<float>(factor), static_cast<float>(offset),
                 static_cast<float>(min), static_cast<float>(max), unit,
                 receivers, sigMuxName, sigMuxNdx });
+
+        ecu_tokens.clear();
     };
 
     return parser.parse(noTabsData.c_str());

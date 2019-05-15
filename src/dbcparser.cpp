@@ -78,6 +78,48 @@ std::string dos2unix(const std::string& data)
     return noWindowsShit;
 }
 
+void setMessageComment(CANdb_t &canDb, uint32_t id, const std::string& comment)
+{
+    cdb_debug("Setting the comment for message {} to \"{}\"", id, comment);
+    auto messageIt = std::find_if(canDb.messages.begin(), canDb.messages.end(),
+        [id](const std::pair<const CANmessage, std::vector<CANsignal>>& entry) {
+            return entry.first.id == id;
+        });
+    if (messageIt != canDb.messages.end()) {
+        // This implementation is by no means optimal, because it requires
+        // creating copies of the message/signal pair already in the map,
+        // updating the message's comment, removing the old data and inserting
+        // the new stuff. This is unfortunately necessary since std::map
+        // requires keys to be immutable, so they cannot be updated directly.
+        cdb_debug("Found the message that needs the new comment");
+        CANmessage updatedMessage(messageIt->first);
+        std::vector<CANsignal> existingSignals(messageIt->second);
+        updatedMessage.comment = comment;
+        canDb.messages.erase(messageIt->first);
+        canDb.messages[updatedMessage] = existingSignals;
+    }
+}
+
+void setSignalComment(CANdb_t &canDb, uint32_t id,
+    const std::string& signalName, const std::string& comment)
+{
+    cdb_debug("Setting the comment for signal {}:{} to \"{}\"", id, signalName,
+        comment);
+    auto messageIt = std::find_if(canDb.messages.begin(), canDb.messages.end(),
+        [id](const std::pair<const CANmessage, std::vector<CANsignal>>& entry)
+            { return entry.first.id == id; });
+    if (messageIt != canDb.messages.end()) {
+        cdb_debug("Found the signal that needs the new comment");
+        auto signalIt = std::find_if(messageIt->second.begin(),
+            messageIt->second.end(),
+            [signalName](const CANsignal& signal)
+                { return signal.signal_name == signalName; });
+        if (signalIt != messageIt->second.end()) {
+            signalIt->comment = comment;
+        }
+    }
+}
+
 bool DBCParser::parse(const std::string& data) noexcept
 {
     auto noTabsData = dos2unix(data);

@@ -25,6 +25,7 @@ struct CANsignal {
     std::vector<std::string> receivers;
     CANsignalMuxType muxType{ CANsignalMuxType::NotMuxed };
     boost::optional<std::uint16_t> muxNdx{ boost::optional<std::uint16_t>() }; // 16-bit for better debug printing
+    boost::optional<std::string> comment{ boost::optional<std::string>() };
 
     bool operator==(const CANsignal& rhs) const
     {
@@ -49,6 +50,7 @@ struct CANmessage {
     std::string ecu;
     std::uint32_t updateCycle{ 0 };
     std::string initValue{ "" };
+    boost::optional<std::string> comment{ boost::optional<std::string>() };
 };
 
 namespace std {

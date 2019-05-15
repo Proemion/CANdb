@@ -139,6 +139,25 @@ void setMessageCycleTime(CANdb_t &canDb, uint32_t id, std::uint32_t cycleTime)
     }
 }
 
+void setSignalStartValue(CANdb_t &canDb, uint32_t id,
+    const std::string& signalName, const boost::any& value)
+{
+    cdb_debug("Setting the start value for signal {}:{}", id, signalName);
+    auto messageIt = std::find_if(canDb.messages.begin(), canDb.messages.end(),
+        [id](const std::pair<const CANmessage, std::vector<CANsignal>>& entry)
+            { return entry.first.id == id; });
+    if (messageIt != canDb.messages.end()) {
+        cdb_debug("Found the signal that needs the new start value");
+        auto signalIt = std::find_if(messageIt->second.begin(),
+            messageIt->second.end(),
+            [signalName](const CANsignal& signal)
+                { return signal.signal_name == signalName; });
+        if (signalIt != messageIt->second.end()) {
+            signalIt->startValue = value;
+        }
+    }
+}
+
 bool DBCParser::parse(const std::string& data) noexcept
 {
     auto noTabsData = dos2unix(data);
@@ -444,18 +463,21 @@ bool DBCParser::parse(const std::string& data) noexcept
         numbers.clear();
     };
 
-    std::map<std::uint32_t, std::tuple<std::string,
-        std::uint32_t>> sigStartValues;
-    parser["ba_sg"] = [&numbers, &idents, &phrases,
-                           &sigStartValues](const peg::SemanticValues& sv) {
+    parser["ba_sg"] = [&numbers, &idents, &phrases, this]
+                           (const peg::SemanticValues& sv) {
         cdb_debug("Found ba_sg {}", sv.token());
+        boost::optional<std::uint32_t> idToSet;
+        boost::optional<std::string> nameToSet;
+        boost::optional<boost::any> valueToSet;
         if (numbers.size() == 2) {
             auto value = static_cast<std::uint32_t>(take_back(numbers));
             auto name = take_back(idents);
             auto id = static_cast<std::uint32_t>(take_back(numbers));
             auto attributeName = take_back(phrases);
             if (attributeName == "GenSigStartValue") {
-                sigStartValues[id] = { name, value };
+                idToSet = id;
+                nameToSet = name;
+                valueToSet = value;
                 cdb_debug("Found signal start value id={}, name={}, value={}",
                     id, name, value);
             }
@@ -465,15 +487,21 @@ bool DBCParser::parse(const std::string& data) noexcept
             auto id = static_cast<std::uint32_t>(take_back(numbers));
             auto attributeName = take_back(phrases);
             if (attributeName == "GenSigStartValue") {
-                // TODO: support strings as signal start values
-                cdb_warn("String-based signal start values are not yet " \
-                    "supported.");
+                idToSet = id;
+                nameToSet = name;
+                valueToSet = value;
                 cdb_debug("Found signal start value id={}, name={}, " \
                     "value=\"{}\"", id, name, value);
             }
         } else {
             cdb_debug("Ignoring potentially unsupported BA_ SG_");
         }
+
+        if (idToSet && nameToSet && valueToSet) {
+            setSignalStartValue(can_db, idToSet.get(), nameToSet.get(),
+                valueToSet.get());
+        }
+
         phrases.clear();
         numbers.clear();
         idents.clear();

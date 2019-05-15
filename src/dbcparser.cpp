@@ -158,6 +158,26 @@ void setSignalStartValue(CANdb_t &canDb, uint32_t id,
     }
 }
 
+void setSignalValueDescription(CANdb_t &canDb, uint32_t id,
+    const std::string& signalName, const std::string& valueDescription)
+{
+    cdb_debug("Setting the value description for signal {}:{} to \"{}\"", id,
+        signalName, valueDescription);
+    auto messageIt = std::find_if(canDb.messages.begin(), canDb.messages.end(),
+        [id](const std::pair<const CANmessage, std::vector<CANsignal>>& entry)
+            { return entry.first.id == id; });
+    if (messageIt != canDb.messages.end()) {
+        cdb_debug("Found the signal that needs the new value description");
+        auto signalIt = std::find_if(messageIt->second.begin(),
+            messageIt->second.end(),
+            [signalName](const CANsignal& signal)
+                { return signal.signal_name == signalName; });
+        if (signalIt != messageIt->second.end()) {
+            signalIt->valueDescription = valueDescription;
+        }
+    }
+}
+
 bool DBCParser::parse(const std::string& data) noexcept
 {
     auto noTabsData = dos2unix(data);
@@ -501,6 +521,29 @@ bool DBCParser::parse(const std::string& data) noexcept
             setSignalStartValue(can_db, idToSet.get(), nameToSet.get(),
                 valueToSet.get());
         }
+
+        phrases.clear();
+        numbers.clear();
+        idents.clear();
+    };
+
+    parser["vals"] = [&numbers, &idents, &phrases, this]
+                           (const peg::SemanticValues& sv) {
+        cdb_debug("Found val_ {}", sv.token());
+        std::string valueDescription;
+        while (phrases.size() > 0 && numbers.size() > 0) {
+            if (!valueDescription.empty()) {
+                valueDescription.insert(0, " ");
+            }
+            valueDescription.insert(0, " " + take_back(phrases));
+            valueDescription.insert(0,
+                std::to_string(static_cast<uint32_t>(take_back(numbers))));
+        }
+        auto name = take_back(idents);
+        auto id = static_cast<std::uint32_t>(take_back(numbers));
+        cdb_debug("Value description for signal {}:{}: \"{}\"", id, name,
+            valueDescription);
+        setSignalValueDescription(can_db, id, name, valueDescription);
 
         phrases.clear();
         numbers.clear();

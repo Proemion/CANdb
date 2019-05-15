@@ -28,6 +28,8 @@ struct CANsignal {
     boost::optional<std::uint16_t> muxNdx{ boost::optional<std::uint16_t>() }; // 16-bit for better debug printing
     boost::optional<boost::any> startValue { boost::optional<boost::any>() };
     boost::optional<std::string> comment{ boost::optional<std::string>() };
+    boost::optional<std::string> valueDescription
+        { boost::optional<std::string>() };
 
     bool operator==(const CANsignal& rhs) const
     {

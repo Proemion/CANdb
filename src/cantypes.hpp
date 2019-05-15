@@ -26,13 +26,12 @@ struct CANsignal {
     std::vector<std::string> receivers;
     CANsignalMuxType muxType{ CANsignalMuxType::NotMuxed };
     // 16-bit for better debug printing via boost::optional
-    boost::optional<std::uint16_t> muxNdx{ boost::optional<std::uint16_t>() };
-    boost::optional<boost::any> startValue { boost::optional<boost::any>() };
-    boost::optional<std::string> comment{ boost::optional<std::string>() };
+    boost::optional<std::uint16_t> muxNdx{ boost::none };
+    boost::optional<boost::any> startValue { boost::none };
+    boost::optional<std::string> comment{ boost::none };
     // 16-bit for better debug printing via boost::optional
-    boost::optional<std::uint16_t> valueType{ boost::optional<std::uint16_t>() };
-    boost::optional<std::string> valueDescription
-        { boost::optional<std::string>() };
+    boost::optional<std::uint16_t> valueType{ boost::none };
+    boost::optional<std::string> valueDescription{ boost::none };
 
     bool operator==(const CANsignal& rhs) const
     {
@@ -55,9 +54,8 @@ struct CANmessage {
     std::string name;
     std::uint32_t dlc;
     std::vector<std::string> ecus;
-    boost::optional<std::uint32_t> cycleTime
-        { boost::optional<std::uint32_t>() };
-    boost::optional<std::string> comment{ boost::optional<std::string>() };
+    boost::optional<std::uint32_t> cycleTime{ boost::none };
+    boost::optional<std::string> comment{ boost::none };
 };
 
 namespace std {
@@ -88,18 +86,12 @@ struct CANdb_t {
     std::vector<std::string> symbols;
     std::vector<std::string> ecus;
     std::vector<ValTable> val_tables;
-    boost::optional<std::uint32_t> genMsgCycleTimeMin
-        { boost::optional<std::uint32_t>() };
-    boost::optional<std::uint32_t> genMsgCycleTimeMax
-        { boost::optional<std::uint32_t>()};
-    boost::optional<std::uint32_t> genMsgCycleTimeDefault
-        { boost::optional<std::uint32_t>()};
-    boost::optional<std::uint32_t> genSigStartValueMin
-        { boost::optional<std::uint32_t>() };
-    boost::optional<std::uint32_t> genSigStartValueMax
-        { boost::optional<std::uint32_t>()};
-    boost::optional<std::uint32_t> genSigStartValueDefault
-        { boost::optional<std::uint32_t>()};
+    boost::optional<std::uint32_t> genMsgCycleTimeMin{ boost::none };
+    boost::optional<std::uint32_t> genMsgCycleTimeMax{ boost::none };
+    boost::optional<std::uint32_t> genMsgCycleTimeDefault{ boost::none };
+    boost::optional<std::uint32_t> genSigStartValueMin{ boost::none };
+    boost::optional<std::uint32_t> genSigStartValueMax{ boost::none };
+    boost::optional<std::uint32_t> genSigStartValueDefault{ boost::none };
 };
 
 #endif /* end of include guard: CANTYPES_HPP_ML9DFK7A */

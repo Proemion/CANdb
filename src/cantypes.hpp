@@ -49,7 +49,6 @@ struct CANmessage {
     std::uint32_t dlc;
     std::string ecu;
     std::uint32_t updateCycle{ 0 };
-    std::string initValue{ "" };
     boost::optional<std::string> comment{ boost::optional<std::string>() };
 };
 

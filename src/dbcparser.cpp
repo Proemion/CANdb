@@ -158,6 +158,26 @@ void setSignalStartValue(CANdb_t &canDb, uint32_t id,
     }
 }
 
+void setSignalValueType(CANdb_t &canDb, uint32_t id,
+    const std::string& signalName, uint8_t valueType)
+{
+    cdb_debug("Setting the value type for signal {}:{} to \"{}\"", id,
+        signalName, static_cast<uint16_t>(valueType));
+    auto messageIt = std::find_if(canDb.messages.begin(), canDb.messages.end(),
+        [id](const std::pair<const CANmessage, std::vector<CANsignal>>& entry)
+            { return entry.first.id == id; });
+    if (messageIt != canDb.messages.end()) {
+        cdb_debug("Found the signal that needs the new value type");
+        auto signalIt = std::find_if(messageIt->second.begin(),
+            messageIt->second.end(),
+            [signalName](const CANsignal& signal)
+                { return signal.signal_name == signalName; });
+        if (signalIt != messageIt->second.end()) {
+            signalIt->valueType = static_cast<std::uint16_t>(valueType);
+        }
+    }
+}
+
 void setSignalValueDescription(CANdb_t &canDb, uint32_t id,
     const std::string& signalName, const std::string& valueDescription)
 {
@@ -523,6 +543,20 @@ bool DBCParser::parse(const std::string& data) noexcept
         }
 
         phrases.clear();
+        numbers.clear();
+        idents.clear();
+    };
+
+    parser["sig_val"] = [&numbers, &idents, this]
+                           (const peg::SemanticValues& sv) {
+        cdb_debug("Found val_ {}", sv.token());
+        auto typeId = static_cast<uint8_t>(take_back(numbers));
+        auto name = take_back(idents);
+        auto id = static_cast<uint32_t>(take_back(numbers));
+        cdb_debug("Value type for signal {}:{}: \"{}\"", id, name,
+            static_cast<uint16_t>(typeId));
+        setSignalValueType(can_db, id, name, typeId);
+
         numbers.clear();
         idents.clear();
     };

@@ -78,15 +78,37 @@ std::string dos2unix(const std::string& data)
     return noWindowsShit;
 }
 
-void appendMessageTransmittingEcus(CANdb_t &canDb, uint32_t id,
-    std::deque<std::string>& ecus)
+inline auto getMessageIteratorById(CANdb_t &canDb, uint32_t id, bool& found)
 {
-    cdb_debug("Appending transmitting ECUs for message {}", id);
     auto messageIt = std::find_if(canDb.messages.begin(), canDb.messages.end(),
         [id](const std::pair<const CANmessage, std::vector<CANsignal>>& entry) {
             return entry.first.id == id;
         });
-    if (messageIt != canDb.messages.end()) {
+    found = messageIt != canDb.messages.end();
+    return messageIt;
+}
+
+inline auto getSignalIteratorByMessageIdAndName(CANdb_t &canDb, uint32_t id,
+    const std::string& name, bool &found)
+{
+    std::vector<CANsignal>::iterator signalIt;
+    auto messageIt = getMessageIteratorById(canDb, id, found);
+    if (found) {
+        signalIt = std::find_if(messageIt->second.begin(),
+            messageIt->second.end(), [name](const CANsignal& signal) {
+                return signal.signal_name == name; });
+        found = signalIt != messageIt->second.end();
+    }
+    return signalIt;
+}
+
+void appendMessageTransmittingEcus(CANdb_t &canDb, uint32_t id,
+    std::deque<std::string>& ecus)
+{
+    cdb_debug("Appending transmitting ECUs for message {}", id);
+    bool messageItFound = false;
+    auto messageIt = getMessageIteratorById(canDb, id, messageItFound);
+    if (messageItFound) {
         // See notes in setMessageComment regarding this copy/remove/insert
         // implementation.
         cdb_debug("Found the message that needs the ECUs");
@@ -108,11 +130,9 @@ void appendMessageTransmittingEcus(CANdb_t &canDb, uint32_t id,
 void setMessageComment(CANdb_t &canDb, uint32_t id, const std::string& comment)
 {
     cdb_debug("Setting the comment for message {} to \"{}\"", id, comment);
-    auto messageIt = std::find_if(canDb.messages.begin(), canDb.messages.end(),
-        [id](const std::pair<const CANmessage, std::vector<CANsignal>>& entry) {
-            return entry.first.id == id;
-        });
-    if (messageIt != canDb.messages.end()) {
+    bool messageItFound = false;
+    auto messageIt = getMessageIteratorById(canDb, id, messageItFound);
+    if (messageItFound) {
         // This implementation is by no means optimal, because it requires
         // creating copies of the message/signal pair already in the map,
         // updating the message's comment, removing the old data and inserting
@@ -132,29 +152,21 @@ void setSignalComment(CANdb_t &canDb, uint32_t id,
 {
     cdb_debug("Setting the comment for signal {}:{} to \"{}\"", id, signalName,
         comment);
-    auto messageIt = std::find_if(canDb.messages.begin(), canDb.messages.end(),
-        [id](const std::pair<const CANmessage, std::vector<CANsignal>>& entry)
-            { return entry.first.id == id; });
-    if (messageIt != canDb.messages.end()) {
+    bool signalItFound = false;
+    auto signalIt = getSignalIteratorByMessageIdAndName(canDb, id, signalName,
+        signalItFound);
+    if (signalItFound) {
         cdb_debug("Found the signal that needs the new comment");
-        auto signalIt = std::find_if(messageIt->second.begin(),
-            messageIt->second.end(),
-            [signalName](const CANsignal& signal)
-                { return signal.signal_name == signalName; });
-        if (signalIt != messageIt->second.end()) {
-            signalIt->comment = comment;
-        }
+        signalIt->comment = comment;
     }
 }
 
 void setMessageCycleTime(CANdb_t &canDb, uint32_t id, std::uint32_t cycleTime)
 {
     cdb_debug("Setting the cycle time for message {} to \"{}\"", id, cycleTime);
-    auto messageIt = std::find_if(canDb.messages.begin(), canDb.messages.end(),
-        [id](const std::pair<const CANmessage, std::vector<CANsignal>>& entry) {
-            return entry.first.id == id;
-        });
-    if (messageIt != canDb.messages.end()) {
+    bool messageItFound = false;
+    auto messageIt = getMessageIteratorById(canDb, id, messageItFound);
+    if (messageItFound) {
         // See notes in setMessageComment regarding this copy/remove/insert
         // implementation.
         cdb_debug("Found the message that needs the new cycle time");
@@ -170,18 +182,12 @@ void setSignalStartValue(CANdb_t &canDb, uint32_t id,
     const std::string& signalName, const boost::any& value)
 {
     cdb_debug("Setting the start value for signal {}:{}", id, signalName);
-    auto messageIt = std::find_if(canDb.messages.begin(), canDb.messages.end(),
-        [id](const std::pair<const CANmessage, std::vector<CANsignal>>& entry)
-            { return entry.first.id == id; });
-    if (messageIt != canDb.messages.end()) {
+    bool signalItFound = false;
+    auto signalIt = getSignalIteratorByMessageIdAndName(canDb, id, signalName,
+        signalItFound);
+    if (signalItFound) {
         cdb_debug("Found the signal that needs the new start value");
-        auto signalIt = std::find_if(messageIt->second.begin(),
-            messageIt->second.end(),
-            [signalName](const CANsignal& signal)
-                { return signal.signal_name == signalName; });
-        if (signalIt != messageIt->second.end()) {
-            signalIt->startValue = value;
-        }
+        signalIt->startValue = value;
     }
 }
 
@@ -190,18 +196,12 @@ void setSignalValueType(CANdb_t &canDb, uint32_t id,
 {
     cdb_debug("Setting the value type for signal {}:{} to \"{}\"", id,
         signalName, static_cast<uint16_t>(valueType));
-    auto messageIt = std::find_if(canDb.messages.begin(), canDb.messages.end(),
-        [id](const std::pair<const CANmessage, std::vector<CANsignal>>& entry)
-            { return entry.first.id == id; });
-    if (messageIt != canDb.messages.end()) {
+    bool signalItFound = false;
+    auto signalIt = getSignalIteratorByMessageIdAndName(canDb, id, signalName,
+        signalItFound);
+    if (signalItFound) {
         cdb_debug("Found the signal that needs the new value type");
-        auto signalIt = std::find_if(messageIt->second.begin(),
-            messageIt->second.end(),
-            [signalName](const CANsignal& signal)
-                { return signal.signal_name == signalName; });
-        if (signalIt != messageIt->second.end()) {
-            signalIt->valueType = static_cast<std::uint16_t>(valueType);
-        }
+        signalIt->valueType = static_cast<std::uint16_t>(valueType);
     }
 }
 
@@ -210,18 +210,12 @@ void setSignalValueDescription(CANdb_t &canDb, uint32_t id,
 {
     cdb_debug("Setting the value description for signal {}:{} to \"{}\"", id,
         signalName, valueDescription);
-    auto messageIt = std::find_if(canDb.messages.begin(), canDb.messages.end(),
-        [id](const std::pair<const CANmessage, std::vector<CANsignal>>& entry)
-            { return entry.first.id == id; });
-    if (messageIt != canDb.messages.end()) {
+    bool signalItFound = false;
+    auto signalIt = getSignalIteratorByMessageIdAndName(canDb, id, signalName,
+        signalItFound);
+    if (signalItFound) {
         cdb_debug("Found the signal that needs the new value description");
-        auto signalIt = std::find_if(messageIt->second.begin(),
-            messageIt->second.end(),
-            [signalName](const CANsignal& signal)
-                { return signal.signal_name == signalName; });
-        if (signalIt != messageIt->second.end()) {
-            signalIt->valueDescription = valueDescription;
-        }
+        signalIt->valueDescription = valueDescription;
     }
 }
 

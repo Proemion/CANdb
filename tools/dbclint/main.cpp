@@ -71,9 +71,9 @@ std::string dumpMessages(
         const bool isMatch
             = std::regex_match(msg.first.name, std::regex{ regex });
         if (isMatch) {
-            buff += fmt::format("  id= {}, name= {:<30}, dlc= {}, ecu={} \n",
+            buff += fmt::format("  id= {}, name= {:<30}, dlc= {}, ecus={} \n",
                 green(msg.first.id), red(msg.first.name), blue(msg.first.dlc),
-                magenta(msg.first.ecu));
+                magenta(msg.first.ecus.size()));
         }
 
         if (dumpMessages) {

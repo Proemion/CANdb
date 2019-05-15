@@ -225,7 +225,7 @@ BU_ :
     expectedSignals.push_back(CANsignal{
         "DAS_steeringControlType", 7, 2, CANsignalEndianness::BigEndianMotorola,
         "+", 1, 0, 0, 0, "", { "EPAS" } });
-    CANmessage msg{ 1160, "DAS_steeringControl", 4, "NEO" };
+    CANmessage msg{ 1160, "DAS_steeringControl", 4, { "NEO" } };
     auto expSig = CANsignal{ "DAS_steeringControlType", 23, 2,
         CANsignalEndianness::BigEndianMotorola, "+", 1, 0, 0,
         0, "", { "EPAS" } };
@@ -249,7 +249,7 @@ BU_ :
         { "EPAS" } };
     EXPECT_EQ(parser.getDb().messages.at(msg).at(3), expSig);
 
-    msg = CANmessage{ 257, "GTW_epasControl", 3, "NEO" };
+    msg = CANmessage{ 257, "GTW_epasControl", 3, { "NEO" } };
     ASSERT_EQ(parser.getDb().messages.at(msg).size(), 7u);
 
     expSig = CANsignal{ "GTW_epasEmergencyOn", 0, 1,

@@ -78,6 +78,33 @@ std::string dos2unix(const std::string& data)
     return noWindowsShit;
 }
 
+void appendMessageTransmittingEcus(CANdb_t &canDb, uint32_t id,
+    std::deque<std::string>& ecus)
+{
+    cdb_debug("Appending transmitting ECUs for message {}", id);
+    auto messageIt = std::find_if(canDb.messages.begin(), canDb.messages.end(),
+        [id](const std::pair<const CANmessage, std::vector<CANsignal>>& entry) {
+            return entry.first.id == id;
+        });
+    if (messageIt != canDb.messages.end()) {
+        // See notes in setMessageComment regarding this copy/remove/insert
+        // implementation.
+        cdb_debug("Found the message that needs the ECUs");
+        CANmessage updatedMessage(messageIt->first);
+        std::vector<CANsignal> existingSignals(messageIt->second);
+        while (!ecus.empty()) {
+            std::string currentEcu(take_first(ecus));
+            if (std::find(updatedMessage.ecus.begin(),
+                    updatedMessage.ecus.end(), currentEcu)
+                        == updatedMessage.ecus.end()) {
+                updatedMessage.ecus.push_back(currentEcu);
+            }
+        }
+        canDb.messages.erase(messageIt->first);
+        canDb.messages[updatedMessage] = existingSignals;
+    }
+}
+
 void setMessageComment(CANdb_t &canDb, uint32_t id, const std::string& comment)
 {
     cdb_debug("Setting the comment for message {} to \"{}\"", id, comment);
@@ -335,7 +362,7 @@ bool DBCParser::parse(const std::string& data) noexcept
         }
 
         const CANmessage msg{ static_cast<std::uint32_t>(id), name,
-            static_cast<std::uint32_t>(dlc), ecu };
+            static_cast<std::uint32_t>(dlc), { ecu } };
         cdb_debug("Found a message with id = {}", msg.id);
         can_db.messages[msg] = signals;
         signals.clear();
@@ -398,6 +425,17 @@ bool DBCParser::parse(const std::string& data) noexcept
         muxType = CANsignalMuxType::NotMuxed;
         muxNdx = -1;
         ecu_tokens.clear();
+    };
+
+    parser["bo_tx_bu"] = [&numbers, &ecu_tokens, this]
+                           (const peg::SemanticValues& sv) {
+        cdb_debug("Found bo_tx_bu {}", sv.token());
+        auto id = static_cast<uint32_t>(take_back(numbers));
+        if (ecu_tokens.size() > 0) {
+            appendMessageTransmittingEcus(can_db, id, ecu_tokens);
+        }
+        ecu_tokens.clear();
+        numbers.clear();
     };
 
     parser["cm_bo"] = [&numbers, &phrases,

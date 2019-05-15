@@ -43,18 +43,18 @@ struct CANsignal {
 struct CANmessage {
     // Constructor required for vs2015 to be able to use initializer_list
     CANmessage(std::uint32_t _id, const std::string& _name = "",
-        std::uint32_t _dlc = 0, const std::string& _ecu = "")
+        std::uint32_t _dlc = 0, const std::vector<std::string>& _ecus = { })
         : id(_id)
         , name(_name)
         , dlc(_dlc)
-        , ecu(_ecu)
+        , ecus(_ecus)
     {
     }
 
     std::uint32_t id;
     std::string name;
     std::uint32_t dlc;
-    std::string ecu;
+    std::vector<std::string> ecus;
     boost::optional<std::uint32_t> cycleTime
         { boost::optional<std::uint32_t>() };
     boost::optional<std::string> comment{ boost::optional<std::string>() };

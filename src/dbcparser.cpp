@@ -120,6 +120,25 @@ void setSignalComment(CANdb_t &canDb, uint32_t id,
     }
 }
 
+void setMessageCycleTime(CANdb_t &canDb, uint32_t id, std::uint32_t cycleTime)
+{
+    cdb_debug("Setting the cycle time for message {} to \"{}\"", id, cycleTime);
+    auto messageIt = std::find_if(canDb.messages.begin(), canDb.messages.end(),
+        [id](const std::pair<const CANmessage, std::vector<CANsignal>>& entry) {
+            return entry.first.id == id;
+        });
+    if (messageIt != canDb.messages.end()) {
+        // See notes in setMessageComment regarding this copy/remove/insert
+        // implementation.
+        cdb_debug("Found the message that needs the new cycle time");
+        CANmessage updatedMessage(messageIt->first);
+        std::vector<CANsignal> existingSignals(messageIt->second);
+        updatedMessage.cycleTime = cycleTime;
+        canDb.messages.erase(messageIt->first);
+        canDb.messages[updatedMessage] = existingSignals;
+    }
+}
+
 bool DBCParser::parse(const std::string& data) noexcept
 {
     auto noTabsData = dos2unix(data);
@@ -406,16 +425,15 @@ bool DBCParser::parse(const std::string& data) noexcept
         numbers.clear();
     };
 
-    std::map<std::uint32_t, std::uint32_t> msgCycleTimes;
-    parser["ba_bo"] = [&numbers, &phrases,
-                           &msgCycleTimes](const peg::SemanticValues& sv) {
+    parser["ba_bo"] = [&numbers, &phrases, this]
+                           (const peg::SemanticValues& sv) {
         cdb_debug("Found ba_bo {}", sv.token());
         try {
             auto cycleTime = static_cast<std::uint32_t>(take_back(numbers));
             auto id = static_cast<std::uint32_t>(take_back(numbers));
             auto attributeName = take_back(phrases);
             if (attributeName == "GenMsgCycleTime") {
-                msgCycleTimes[id] = cycleTime;
+                setMessageCycleTime(can_db, id, cycleTime);
                 cdb_debug("Found message cycle time id={}, time={}", id,
                     cycleTime);
             }

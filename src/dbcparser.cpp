@@ -328,7 +328,7 @@ bool DBCParser::parse(const std::string& data) noexcept
         auto comment = take_back(phrases);
         auto id = static_cast<std::uint32_t>(take_back(numbers));
         setMessageComment(can_db, id, comment);
-        cdb_debug("Message comment id={}, comment={}", id, comment);
+        cdb_debug("Message comment id={}, comment=\"{}\"", id, comment);
         phrases.clear();
         numbers.clear();
     };
@@ -340,7 +340,7 @@ bool DBCParser::parse(const std::string& data) noexcept
         auto name = take_back(idents);
         auto id = static_cast<std::uint32_t>(take_back(numbers));
         setSignalComment(can_db, id, name, comment);
-        cdb_debug("Signal comment id={}, name={}, comment={}", id, name,
+        cdb_debug("Signal comment id={}, name={}, comment=\"{}\"", id, name,
             comment);
         phrases.clear();
         numbers.clear();
@@ -460,8 +460,8 @@ bool DBCParser::parse(const std::string& data) noexcept
                 // TODO: support strings as signal start values
                 cdb_warn("String-based signal start values are not yet " \
                     "supported.");
-                cdb_debug("Found signal start value id={}, name={}, value={}",
-                    id, name, value);
+                cdb_debug("Found signal start value id={}, name={}, " \
+                    "value=\"{}\"", id, name, value);
             }
         } else {
             cdb_debug("Ignoring potentially unsupported BA_ SG_");

@@ -25,7 +25,8 @@ struct CANsignal {
     std::string unit;
     std::vector<std::string> receivers;
     CANsignalMuxType muxType{ CANsignalMuxType::NotMuxed };
-    boost::optional<std::uint16_t> muxNdx{ boost::optional<std::uint16_t>() }; // 16-bit for better debug printing
+    // 16-bit for better debug printing via boost::optional
+    boost::optional<std::uint16_t> muxNdx{ boost::optional<std::uint16_t>() };
     boost::optional<boost::any> startValue { boost::optional<boost::any>() };
     boost::optional<std::string> comment{ boost::optional<std::string>() };
     // 16-bit for better debug printing via boost::optional

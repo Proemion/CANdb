@@ -426,7 +426,6 @@ bool DBCParser::parse(const std::string& data) noexcept
     };
 
     // TODO: HEX forms of BA_DEF_ BO_ and BA_DEF_ SG_
-    // TODO: VAL_ entries
 
     parser["ba_def_bo_int_num"] = [&phrases, &numbers, this]
                                        (const peg::SemanticValues& sv) {

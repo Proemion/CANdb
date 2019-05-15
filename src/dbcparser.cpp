@@ -350,64 +350,54 @@ bool DBCParser::parse(const std::string& data) noexcept
     // TODO: HEX forms of BA_DEF_ BO_ and BA_DEF_ SG_
     // TODO: VAL_ entries
 
-    std::uint32_t genMsgCycleTimeMin{ 0 };
-    std::uint32_t genMsgCycleTimeMax{ 0 };
-    parser["ba_def_bo_int_num"] = [&phrases, &numbers, &genMsgCycleTimeMin,
-                                       &genMsgCycleTimeMax]
+    parser["ba_def_bo_int_num"] = [&phrases, &numbers, this]
                                        (const peg::SemanticValues& sv) {
         cdb_debug("Found ba_def_bo_int_num {}", sv.token());
         auto max = static_cast<std::uint32_t>(take_back(numbers));
         auto min = static_cast<std::uint32_t>(take_back(numbers));
         auto attributeName = take_back(phrases);
         if (attributeName == "GenMsgCycleTime") {
-            genMsgCycleTimeMin = min;
-            genMsgCycleTimeMax = max;
+            can_db.genMsgCycleTimeMin = min;
+            can_db.genMsgCycleTimeMax = max;
             cdb_debug("Found GenMsgCycleTime range: {}-{}",
-                genMsgCycleTimeMin,
-                genMsgCycleTimeMax);
+                can_db.genMsgCycleTimeMin,
+                can_db.genMsgCycleTimeMax);
         }
         phrases.clear();
         numbers.clear();
     };
 
-    std::uint32_t genSigStartValueMin{ 0 };
-    std::uint32_t genSigStartValueMax{ 0 };
-    parser["ba_def_sg_int_num"] = [&phrases, &numbers, &genSigStartValueMin,
-                                       &genSigStartValueMax]
+    parser["ba_def_sg_int_num"] = [&phrases, &numbers, this]
                                        (const peg::SemanticValues& sv) {
         cdb_debug("Found ba_def_sg_int_num {}", sv.token());
         auto max = static_cast<std::uint32_t>(take_back(numbers));
         auto min = static_cast<std::uint32_t>(take_back(numbers));
         auto attributeName = take_back(phrases);
         if (attributeName == "GenSigStartValue") {
-            genSigStartValueMin = min;
-            genSigStartValueMax = max;
+            can_db.genSigStartValueMin = min;
+            can_db.genSigStartValueMax = max;
             cdb_debug("Found GenSigStartValue range: {}-{}",
-                genSigStartValueMin,
-                genSigStartValueMax);
+                can_db.genSigStartValueMin,
+                can_db.genSigStartValueMax);
         }
         phrases.clear();
         numbers.clear();
     };
 
-    std::uint32_t genMsgCycleTimeDefault{ 0 };
-    std::uint32_t genSigStartValueDefault{ 0 };
-    parser["ba_def_def"] = [&phrases, &numbers,
-                                &genMsgCycleTimeDefault,
-                                &genSigStartValueDefault]
+    parser["ba_def_def"] = [&phrases, &numbers, this]
                                 (const peg::SemanticValues& sv) {
         cdb_debug("Found ba_def_def {}", sv.token());
         try {
             auto value = static_cast<std::uint32_t>(take_back(numbers));
             auto attributeName = take_back(phrases);
             if (attributeName == "GenMsgCycleTime") {
-                genMsgCycleTimeDefault = value;
+                can_db.genMsgCycleTimeDefault = value;
                 cdb_debug("Found default GenMsgCycleTime: {}",
-                    genMsgCycleTimeDefault);
+                    can_db.genMsgCycleTimeDefault);
             } else if (attributeName == "GenSigStartValue") {
-                genSigStartValueDefault = value;
+                can_db.genSigStartValueDefault = value;
                 cdb_debug("Found default GenSigStartValue: {}",
-                    genSigStartValueDefault);
+                    can_db.genSigStartValueDefault);
             }
         } catch (const std::exception &) {
             cdb_debug("Ignoring potentially unsupported BA_DEF_DEF_");

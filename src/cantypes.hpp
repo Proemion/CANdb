@@ -80,6 +80,18 @@ struct CANdb_t {
     std::vector<std::string> symbols;
     std::vector<std::string> ecus;
     std::vector<ValTable> val_tables;
+    boost::optional<std::uint32_t> genMsgCycleTimeMin
+        { boost::optional<std::uint32_t>() };
+    boost::optional<std::uint32_t> genMsgCycleTimeMax
+        { boost::optional<std::uint32_t>()};
+    boost::optional<std::uint32_t> genMsgCycleTimeDefault
+        { boost::optional<std::uint32_t>()};
+    boost::optional<std::uint32_t> genSigStartValueMin
+        { boost::optional<std::uint32_t>() };
+    boost::optional<std::uint32_t> genSigStartValueMax
+        { boost::optional<std::uint32_t>()};
+    boost::optional<std::uint32_t> genSigStartValueDefault
+        { boost::optional<std::uint32_t>()};
 };
 
 #endif /* end of include guard: CANTYPES_HPP_ML9DFK7A */

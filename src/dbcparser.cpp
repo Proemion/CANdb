@@ -243,7 +243,7 @@ bool DBCParser::parse(const std::string& data) noexcept
 
     strings phrases;
     std::deque<std::string> idents, signs, ecu_tokens;
-    std::deque<std::int64_t> numbers;
+    std::deque<std::double_t> numbers;
 
     CANsignalMuxType muxType = CANsignalMuxType::NotMuxed;
     int muxNdx = -1;
@@ -306,7 +306,7 @@ bool DBCParser::parse(const std::string& data) noexcept
 
     parser["number"] = [&numbers](const peg::SemanticValues& sv) {
         try {
-            auto number = std::stoull(sv.token(), nullptr, 10);
+            auto number = std::stod(sv.token(), nullptr);
             cdb_trace("Found number {}", number);
             numbers.push_back(number);
         } catch (const std::exception& ex) {
@@ -412,9 +412,8 @@ bool DBCParser::parse(const std::string& data) noexcept
             CANsignal{ signal_name, static_cast<std::uint8_t>(startBit),
                 static_cast<std::uint8_t>(signalSize),
                 static_cast<CANsignalEndianness>(endianness), valueSigned,
-                static_cast<float>(factor), static_cast<float>(offset),
-                static_cast<float>(min), static_cast<float>(max), unit,
-                receivers, sigMuxType, sigMuxNdx });
+                factor, offset, min, max, unit, receivers, sigMuxType,
+                sigMuxNdx });
 
         muxType = CANsignalMuxType::NotMuxed;
         muxNdx = -1;
@@ -479,8 +478,8 @@ bool DBCParser::parse(const std::string& data) noexcept
     parser["ba_def_sg_int_num"] = [&phrases, &numbers, this]
                                        (const peg::SemanticValues& sv) {
         cdb_debug("Found ba_def_sg_int_num {}", sv.token());
-        auto max = static_cast<std::uint32_t>(take_back(numbers));
-        auto min = static_cast<std::uint32_t>(take_back(numbers));
+        auto max = take_back(numbers);
+        auto min = take_back(numbers);
         auto attributeName = take_back(phrases);
         if (attributeName == "GenSigStartValue") {
             can_db.genSigStartValueMin = min;
@@ -497,7 +496,7 @@ bool DBCParser::parse(const std::string& data) noexcept
                                 (const peg::SemanticValues& sv) {
         cdb_debug("Found ba_def_def {}", sv.token());
         try {
-            auto value = static_cast<std::uint32_t>(take_back(numbers));
+            auto value = take_back(numbers);
             auto attributeName = take_back(phrases);
             if (attributeName == "GenMsgCycleTime") {
                 can_db.genMsgCycleTimeDefault = value;
@@ -541,7 +540,7 @@ bool DBCParser::parse(const std::string& data) noexcept
         boost::optional<std::string> nameToSet;
         boost::optional<boost::any> valueToSet;
         if (numbers.size() == 2) {
-            auto value = static_cast<std::uint32_t>(take_back(numbers));
+            auto value = take_back(numbers);
             auto name = take_back(idents);
             auto id = static_cast<std::uint32_t>(take_back(numbers));
             auto attributeName = take_back(phrases);

@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <math.h>
 #include <boost/optional.hpp>
 #include <boost/any.hpp>
 
@@ -18,10 +19,10 @@ struct CANsignal {
     std::uint8_t signalSize;
     CANsignalEndianness endianness;
     bool valueSigned;
-    float factor;
-    float offset;
-    float min;
-    float max;
+    std::double_t factor;
+    std::double_t offset;
+    std::double_t min;
+    std::double_t max;
     std::string unit;
     std::vector<std::string> receivers;
     CANsignalMuxType muxType{ CANsignalMuxType::NotMuxed };
@@ -89,9 +90,9 @@ struct CANdb_t {
     boost::optional<std::uint32_t> genMsgCycleTimeMin{ boost::none };
     boost::optional<std::uint32_t> genMsgCycleTimeMax{ boost::none };
     boost::optional<std::uint32_t> genMsgCycleTimeDefault{ boost::none };
-    boost::optional<std::uint32_t> genSigStartValueMin{ boost::none };
-    boost::optional<std::uint32_t> genSigStartValueMax{ boost::none };
-    boost::optional<std::uint32_t> genSigStartValueDefault{ boost::none };
+    boost::optional<std::double_t> genSigStartValueMin{ boost::none };
+    boost::optional<std::double_t> genSigStartValueMax{ boost::none };
+    boost::optional<std::double_t> genSigStartValueDefault{ boost::none };
 };
 
 #endif /* end of include guard: CANTYPES_HPP_ML9DFK7A */

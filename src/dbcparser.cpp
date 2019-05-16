@@ -458,11 +458,9 @@ bool DBCParser::parse(const std::string& data) noexcept
         idents.clear();
     };
 
-    // TODO: HEX forms of BA_DEF_ BO_ and BA_DEF_ SG_
-
-    parser["ba_def_bo_int_num"] = [&phrases, &numbers, this]
-                                       (const peg::SemanticValues& sv) {
-        cdb_debug("Found ba_def_bo_int_num {}", sv.token());
+    parser["ba_def_bo_num"] = [&phrases, &numbers, this]
+                                   (const peg::SemanticValues& sv) {
+        cdb_debug("Found ba_def_bo_num {}", sv.token());
         auto max = static_cast<std::uint32_t>(take_back(numbers));
         auto min = static_cast<std::uint32_t>(take_back(numbers));
         auto attributeName = take_back(phrases);
@@ -477,9 +475,9 @@ bool DBCParser::parse(const std::string& data) noexcept
         numbers.clear();
     };
 
-    parser["ba_def_sg_int_num"] = [&phrases, &numbers, this]
-                                       (const peg::SemanticValues& sv) {
-        cdb_debug("Found ba_def_sg_int_num {}", sv.token());
+    parser["ba_def_sg_num"] = [&phrases, &numbers, this]
+                                   (const peg::SemanticValues& sv) {
+        cdb_debug("Found ba_def_sg_num {}", sv.token());
         auto max = take_back(numbers);
         auto min = take_back(numbers);
         auto attributeName = take_back(phrases);

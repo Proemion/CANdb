@@ -9,7 +9,7 @@
 #include <boost/optional.hpp>
 #include <boost/any.hpp>
 
-enum class CANsignalType { Int, Float, String };
+enum class CANsignalType { Unknown = -1, SignedUnsignedInt = 0, Float = 1, Double = 2, Count };
 enum class CANsignalMuxType { NotMuxed = 0, Muxer, Muxed };
 enum class CANsignalEndianness { BigEndianMotorola = 0, LittleEndianIntel = 1 };
 
@@ -31,7 +31,7 @@ struct CANsignal {
     boost::optional<boost::any> startValue { boost::none };
     boost::optional<std::string> comment{ boost::none };
     // 16-bit for better debug printing via boost::optional
-    boost::optional<std::uint16_t> valueType{ boost::none };
+    boost::optional<CANsignalType> valueType{ boost::none };
     boost::optional<std::string> valueDescription{ boost::none };
 
     bool operator==(const CANsignal& rhs) const

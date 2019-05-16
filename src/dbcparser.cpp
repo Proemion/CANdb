@@ -192,16 +192,18 @@ void setSignalStartValue(CANdb_t &canDb, uint32_t id,
 }
 
 void setSignalValueType(CANdb_t &canDb, uint32_t id,
-    const std::string& signalName, uint8_t valueType)
+    const std::string& signalName, uint8_t valueTypeRaw)
 {
     cdb_debug("Setting the value type for signal {}:{} to \"{}\"", id,
-        signalName, static_cast<uint16_t>(valueType));
+        signalName, static_cast<uint16_t>(valueTypeRaw));
     bool signalItFound = false;
     auto signalIt = getSignalIteratorByMessageIdAndName(canDb, id, signalName,
         signalItFound);
     if (signalItFound) {
         cdb_debug("Found the signal that needs the new value type");
-        signalIt->valueType = static_cast<std::uint16_t>(valueType);
+        signalIt->valueType =
+            valueTypeRaw < static_cast<std::uint8_t>(CANsignalType::Count)
+            ? static_cast<CANsignalType>(valueTypeRaw) : CANsignalType::Unknown;
     }
 }
 

@@ -9,7 +9,8 @@
 #include <boost/optional.hpp>
 #include <boost/any.hpp>
 
-enum class CANsignalType { Unknown = -1, SignedUnsignedInt = 0, Float = 1, Double = 2, Count };
+enum class CANsignalType { Unknown = -1, SignedUnsignedInt = 0, Float = 1,
+    Double = 2, Count };
 enum class CANsignalMuxType { NotMuxed = 0, Muxer, Muxed };
 enum class CANsignalEndianness { BigEndianMotorola = 0, LittleEndianIntel = 1 };
 

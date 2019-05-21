@@ -586,7 +586,7 @@ bool DBCParser::parse(const std::string& data) noexcept
                            (const peg::SemanticValues& sv) {
         cdb_debug("Found val_ {}", sv.token());
         std::string valueDescription;
-        while (phrases.size() > 0 && numbers.size() > 0) {
+        while (phrases.size() > 0 && numbers.size() > 1) {
             if (!valueDescription.empty()) {
                 valueDescription.insert(0, " ");
             }

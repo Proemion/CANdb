@@ -353,12 +353,13 @@ bool DBCParser::parse(const std::string& data) noexcept
         auto ecu = take_back(idents);
         auto name = take_back(idents);
 
-        if (ecu == ECU_MAGIC_NAME_NONE) {
-            ecu.clear();
+        std::vector<std::string> ecuList;
+        if (!ecu.empty() && ecu != ECU_MAGIC_NAME_NONE) {
+            ecuList.push_back(ecu);
         }
 
         const CANmessage msg{ static_cast<std::uint32_t>(id), name,
-            static_cast<std::uint32_t>(dlc), { ecu } };
+            static_cast<std::uint32_t>(dlc), ecuList };
         cdb_debug("Found a message with id = {}", msg.id);
         can_db.messages[msg] = signals;
         signals.clear();

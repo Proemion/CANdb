@@ -458,35 +458,26 @@ bool DBCParser::parse(const std::string& data) noexcept
         idents.clear();
     };
 
-    parser["ba_def_bo_num"] = [&phrases, &numbers, this]
+    parser["ba_def_num"] = [&phrases, &numbers, this]
                                    (const peg::SemanticValues& sv) {
-        cdb_debug("Found ba_def_bo_num {}", sv.token());
-        auto max = static_cast<std::uint32_t>(take_back(numbers));
-        auto min = static_cast<std::uint32_t>(take_back(numbers));
+        cdb_debug("Found ba_def_num {}", sv.token());
         auto attributeName = take_back(phrases);
-        if (attributeName == "GenMsgCycleTime") {
-            can_db.genMsgCycleTimeMin = min;
-            can_db.genMsgCycleTimeMax = max;
-            cdb_debug("Found GenMsgCycleTime range: {}-{}",
-                can_db.genMsgCycleTimeMin,
-                can_db.genMsgCycleTimeMax);
-        }
-        phrases.clear();
-        numbers.clear();
-    };
-
-    parser["ba_def_sg_num"] = [&phrases, &numbers, this]
-                                   (const peg::SemanticValues& sv) {
-        cdb_debug("Found ba_def_sg_num {}", sv.token());
-        auto max = take_back(numbers);
-        auto min = take_back(numbers);
-        auto attributeName = take_back(phrases);
-        if (attributeName == "GenSigStartValue") {
-            can_db.genSigStartValueMin = min;
-            can_db.genSigStartValueMax = max;
-            cdb_debug("Found GenSigStartValue range: {}-{}",
-                can_db.genSigStartValueMin,
-                can_db.genSigStartValueMax);
+        if (sv.str().find(" BO_ ") != std::string::npos) {
+            if (attributeName == "GenMsgCycleTime") {
+                can_db.genMsgCycleTimeMax = static_cast<std::uint32_t>(take_back(numbers));
+                can_db.genMsgCycleTimeMin = static_cast<std::uint32_t>(take_back(numbers));
+                cdb_debug("Found GenMsgCycleTime range: {}-{}",
+                    can_db.genMsgCycleTimeMin,
+                    can_db.genMsgCycleTimeMax);
+            }
+        } else if (sv.str().find(" SG_ ") != std::string::npos) {
+            if (attributeName == "GenSigStartValue") {
+                can_db.genSigStartValueMax = take_back(numbers);
+                can_db.genSigStartValueMin = take_back(numbers);
+                cdb_debug("Found GenSigStartValue range: {}-{}",
+                    can_db.genSigStartValueMin,
+                    can_db.genSigStartValueMax);
+            }
         }
         phrases.clear();
         numbers.clear();

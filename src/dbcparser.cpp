@@ -376,7 +376,7 @@ bool DBCParser::parse(const std::string& data) noexcept
         cdb_debug("Found signal {}", sv.token());
 
         std::vector<std::string> receivers;
-        std::copy_if (ecu_tokens.begin(), ecu_tokens.end(),
+        std::copy_if(ecu_tokens.begin(), ecu_tokens.end(),
             std::back_inserter(receivers),
             [](const std::string& ecu){ return ecu != ECU_MAGIC_NAME_NONE; });
         auto unit = take_back(phrases);

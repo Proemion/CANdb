@@ -42,7 +42,8 @@ auto to_vector(const T& container) -> std::vector<typename T::value_type>
 {
     std::vector<typename T::value_type> ret;
     std::transform(std::begin(container), std::end(container),
-        std::back_inserter(ret), [](const auto& v) { return v; });
+        std::back_inserter(ret),
+            [](const typename T::value_type& v) { return v; });
     return ret;
 }
 
@@ -78,7 +79,8 @@ std::string dos2unix(const std::string& data)
     return noWindowsShit;
 }
 
-inline auto getMessageIteratorById(CANdb_t &canDb, uint32_t id, bool& found)
+inline std::map<CANmessage, std::vector<CANsignal>>::iterator
+    getMessageIteratorById(CANdb_t &canDb, uint32_t id, bool& found)
 {
     auto messageIt = std::find_if(canDb.messages.begin(), canDb.messages.end(),
         [id](const std::pair<const CANmessage, std::vector<CANsignal>>& entry) {
@@ -88,8 +90,9 @@ inline auto getMessageIteratorById(CANdb_t &canDb, uint32_t id, bool& found)
     return messageIt;
 }
 
-inline auto getSignalIteratorByMessageIdAndName(CANdb_t &canDb, uint32_t id,
-    const std::string& name, bool &found)
+inline std::vector<CANsignal>::iterator
+    getSignalIteratorByMessageIdAndName(CANdb_t &canDb, uint32_t id,
+        const std::string& name, bool &found)
 {
     std::vector<CANsignal>::iterator signalIt;
     auto messageIt = getMessageIteratorById(canDb, id, found);
@@ -326,7 +329,7 @@ bool DBCParser::parse(const std::string& data) noexcept
     parser["val_entry"] = [this, &phrasesPairs](const peg::SemanticValues&) {
         std::vector<CANdb_t::ValTable::ValTableEntry> tab;
         std::transform(phrasesPairs.begin(), phrasesPairs.end(),
-            std::back_inserter(tab), [](const auto& p) {
+            std::back_inserter(tab), [](const PhrasePair& p) {
                 return CANdb_t::ValTable::ValTableEntry{ p.first, p.second };
             });
         can_db.val_tables.push_back(CANdb_t::ValTable{ "", tab });

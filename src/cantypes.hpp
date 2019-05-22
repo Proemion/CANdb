@@ -35,6 +35,38 @@ struct CANsignal {
     boost::optional<CANsignalType> valueType{ boost::none };
     boost::optional<std::string> valueDescription{ boost::none };
 
+    // Constructor required for C++11 to be able to use an initializer list
+    CANsignal(std::string _signal_name, std::uint8_t _startBit,
+        std::uint8_t _signalSize, CANsignalEndianness _endianness,
+        bool _valueSigned, std::double_t _factor, std::double_t _offset,
+        std::double_t _min, std::double_t _max, std::string _unit,
+        std::vector<std::string> _receivers,
+        CANsignalMuxType _muxType = CANsignalMuxType::NotMuxed,
+        boost::optional<std::uint16_t> _muxNdx = boost::none,
+        boost::optional<boost::any> _startValue = boost::none,
+        boost::optional<std::string> _comment = boost::none,
+        boost::optional<CANsignalType> _valueType = boost::none,
+        boost::optional<std::string> _valueDescription = boost::none)
+        : signal_name(_signal_name)
+        , startBit(_startBit)
+        , signalSize(_signalSize)
+        , endianness(_endianness)
+        , valueSigned(_valueSigned)
+        , factor(_factor)
+        , offset(_offset)
+        , min(_min)
+        , max(_max)
+        , unit(_unit)
+        , receivers(_receivers)
+        , muxType(_muxType)
+        , muxNdx(_muxNdx)
+        , startValue(_startValue)
+        , comment(_comment)
+        , valueType(_valueType)
+        , valueDescription(_valueDescription)
+    {
+    }
+
     bool operator==(const CANsignal& rhs) const
     {
         return signal_name == rhs.signal_name;

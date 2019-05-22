@@ -80,27 +80,29 @@ std::string dos2unix(const std::string& data)
 }
 
 inline std::map<CANmessage, std::vector<CANsignal>>::iterator
-    getMessageIteratorById(CANdb_t &canDb, uint32_t id, bool& found)
+    getMessageIteratorById(CANdb_t &canDb, uint32_t id, bool* found)
 {
+    assert(found != nullptr);
     auto messageIt = std::find_if(canDb.messages.begin(), canDb.messages.end(),
         [id](const std::pair<const CANmessage, std::vector<CANsignal>>& entry) {
             return entry.first.id == id;
         });
-    found = messageIt != canDb.messages.end();
+    *found = messageIt != canDb.messages.end();
     return messageIt;
 }
 
 inline std::vector<CANsignal>::iterator
     getSignalIteratorByMessageIdAndName(CANdb_t &canDb, uint32_t id,
-        const std::string& name, bool &found)
+        const std::string& name, bool* found)
 {
+    assert(found != nullptr);
     std::vector<CANsignal>::iterator signalIt;
     auto messageIt = getMessageIteratorById(canDb, id, found);
-    if (found) {
+    if (*found) {
         signalIt = std::find_if(messageIt->second.begin(),
             messageIt->second.end(), [name](const CANsignal& signal) {
                 return signal.signal_name == name; });
-        found = signalIt != messageIt->second.end();
+        *found = signalIt != messageIt->second.end();
     }
     return signalIt;
 }
@@ -110,7 +112,7 @@ void appendMessageTransmittingEcus(CANdb_t &canDb, uint32_t id,
 {
     cdb_debug("Appending transmitting ECUs for message {}", id);
     bool messageItFound = false;
-    auto messageIt = getMessageIteratorById(canDb, id, messageItFound);
+    auto messageIt = getMessageIteratorById(canDb, id, &messageItFound);
     if (messageItFound) {
         // See notes in setMessageComment regarding this copy/remove/insert
         // implementation.
@@ -134,7 +136,7 @@ void setMessageComment(CANdb_t &canDb, uint32_t id, const std::string& comment)
 {
     cdb_debug("Setting the comment for message {} to \"{}\"", id, comment);
     bool messageItFound = false;
-    auto messageIt = getMessageIteratorById(canDb, id, messageItFound);
+    auto messageIt = getMessageIteratorById(canDb, id, &messageItFound);
     if (messageItFound) {
         // This implementation is by no means optimal, because it requires
         // creating copies of the message/signal pair already in the map,
@@ -157,7 +159,7 @@ void setSignalComment(CANdb_t &canDb, uint32_t id,
         comment);
     bool signalItFound = false;
     auto signalIt = getSignalIteratorByMessageIdAndName(canDb, id, signalName,
-        signalItFound);
+        &signalItFound);
     if (signalItFound) {
         cdb_debug("Found the signal that needs the new comment");
         signalIt->comment = comment;
@@ -168,7 +170,7 @@ void setMessageCycleTime(CANdb_t &canDb, uint32_t id, std::uint32_t cycleTime)
 {
     cdb_debug("Setting the cycle time for message {} to \"{}\"", id, cycleTime);
     bool messageItFound = false;
-    auto messageIt = getMessageIteratorById(canDb, id, messageItFound);
+    auto messageIt = getMessageIteratorById(canDb, id, &messageItFound);
     if (messageItFound) {
         // See notes in setMessageComment regarding this copy/remove/insert
         // implementation.
@@ -187,7 +189,7 @@ void setSignalStartValue(CANdb_t &canDb, uint32_t id,
     cdb_debug("Setting the start value for signal {}:{}", id, signalName);
     bool signalItFound = false;
     auto signalIt = getSignalIteratorByMessageIdAndName(canDb, id, signalName,
-        signalItFound);
+        &signalItFound);
     if (signalItFound) {
         cdb_debug("Found the signal that needs the new start value");
         signalIt->startValue = value;
@@ -201,7 +203,7 @@ void setSignalValueType(CANdb_t &canDb, uint32_t id,
         signalName, static_cast<uint16_t>(valueTypeRaw));
     bool signalItFound = false;
     auto signalIt = getSignalIteratorByMessageIdAndName(canDb, id, signalName,
-        signalItFound);
+        &signalItFound);
     if (signalItFound) {
         cdb_debug("Found the signal that needs the new value type");
         signalIt->valueType =
@@ -217,7 +219,7 @@ void setSignalValueDescription(CANdb_t &canDb, uint32_t id,
         signalName, valueDescription);
     bool signalItFound = false;
     auto signalIt = getSignalIteratorByMessageIdAndName(canDb, id, signalName,
-        signalItFound);
+        &signalItFound);
     if (signalItFound) {
         cdb_debug("Found the signal that needs the new value description");
         signalIt->valueDescription = valueDescription;

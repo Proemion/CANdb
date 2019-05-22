@@ -6,7 +6,7 @@ option(WITH_COVERAGE "Build with coverage" OFF)
 option(WITH_TESTS "Build with test" ON)
 option(WITH_TOOLS "Build example dbc tools" ON)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 11)
 
 find_package(Threads REQUIRED)
 find_package(Boost REQUIRED)

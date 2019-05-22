@@ -314,7 +314,7 @@ bool DBCParser::parse(const std::string& data) noexcept
             auto number = std::stod(sv.token(), nullptr);
             cdb_trace("Found number {}", number);
             numbers.push_back(number);
-        } catch (const std::exception& ex) {
+        } catch (const std::exception&) {
             cdb_error(
                 "Unable to parse {} to a number from {}", sv.token(), sv.str());
         }

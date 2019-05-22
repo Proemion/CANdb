@@ -1,3 +1,4 @@
+#ifndef DISABLE_CDB_LOG
 #include <cstring>
 #include <iostream>
 #include <memory>
@@ -34,3 +35,12 @@ extern std::shared_ptr<spdlog::logger> kDefaultLogger;
         kDefaultLogger->info(                                                  \
             "[{}@{}] " fmt, __FILENAME__, __LINE__, ##__VA_ARGS__);            \
     } while (0)
+#else
+template<class ...Args> void EAT_VAR_ARGS(Args...){}
+#define empty_debug_stub(fmt, ...) (void)fmt; EAT_VAR_ARGS(__VA_ARGS__);
+#define cdb_debug(fmt, ...) empty_debug_stub(fmt, ##__VA_ARGS__);
+#define cdb_trace(fmt, ...) empty_debug_stub(fmt, ##__VA_ARGS__);
+#define cdb_warn(fmt, ...) empty_debug_stub(fmt, ##__VA_ARGS__);
+#define cdb_error(fmt, ...) empty_debug_stub(fmt, ##__VA_ARGS__);
+#define cdb_info(fmt, ...) empty_debug_stub(fmt, ##__VA_ARGS__);
+#endif

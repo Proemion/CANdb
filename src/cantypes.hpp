@@ -5,7 +5,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include <boost/optional.hpp>
 #include <boost/any.hpp>
 

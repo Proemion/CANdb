@@ -13,8 +13,8 @@ message                 <- 'BO_' s* number s* TOKEN ':' s number s TOKEN _ signa
 bo_tx_bu                <- < 'BO_TX_BU_' s* number s* ':' s* ECU_TOKEN (',' ECU_TOKEN)* ';' > NewLine
 cm                      <- < 'CM_' s* phrase > ';' NewLine
 cm_bu                   <- < 'CM_' s* 'BU_' s* TOKEN s* phrase > ';' NewLine
-cm_bo                   <- < 'CM_' s* 'BO_' s* integer s* phrase > ';' NewLine
-cm_sg                   <- < 'CM_' s* 'SG_' s* integer s* TOKEN s* phrase > ';' NewLine*
+cm_bo                   <- < 'CM_' s* 'BO_' s* number s* phrase > ';' NewLine
+cm_sg                   <- < 'CM_' s* 'SG_' s* number s* TOKEN s* phrase > ';' NewLine*
 ba_def_str              <- (< 'BA_DEF_' s* (('BO_' / 'SG_' / 'BU_') s*)? phrase s* 'STRING' s* ';' > (NewLine / s* comment) ) / comment
 ba_def_num              <- (< 'BA_DEF_' s* (('BO_' / 'SG_' / 'BU_') s*)? phrase s* ('INT' / 'HEX') s* number s* number ';' > (NewLine / s* comment) ) / comment
 ba_def_enum             <- (< 'BA_DEF_' s* (('BO_' / 'SG_' / 'BU_') s*)? phrase s* 'ENUM' s* ENUM_VAL';' > (NewLine / s* comment) ) / comment
@@ -22,7 +22,7 @@ ba_def_def              <- < 'BA_DEF_DEF_' s* phrase s* (phrase / number ) ';' >
 ba                      <- < 'BA_' s* phrase s* (phrase / number ) ';' > NewLine
 ba_bu                   <- < 'BA_' s* phrase s* 'BU_' s* TOKEN s* (phrase / number) ';' > NewLine
 ba_bo                   <- < 'BA_' s* phrase s* 'BO_' s* number s* (phrase / number) s* ';' > NewLine
-ba_sg                   <- < 'BA_' s* phrase s* 'SG_' s* number s* TOKEN s* number s* ';' > NewLine
+ba_sg                   <- < 'BA_' s* phrase s* 'SG_' s* number s* TOKEN s* (phrase / number) s* ';' > NewLine
 # ignore ba_def_rel for now
 ba_def_rel              <- 'BA_DEF_REL_' (!NewLine .)* NewLine
 # ignore ba_def_def_rel for now
@@ -34,7 +34,7 @@ vals                    <- < 'VAL_' s* number s* TOKEN s* number s* phrase s* (n
 comment                 <- '//' (!NewLine .)* NewLine
 sig_val                 <- < 'SIG_VALTYPE_' s* number s* TOKEN s* ':' s* number ';' > NewLine
 
-signal                  <- < s* 'SG_' s* TOKEN s* mux? mux_ndx? s* ':' s* number '|' number '@' number sign s* '(' number ',' s* number ')' s* '[' number '|' number ']' s* phrase s* ECU_TOKEN (',' ECU_TOKEN)* > NewLine
+signal                  <- < s* 'SG_' s* TOKEN s* muxer? mux_ndx? s* ':' s* number '|' number '@' number sign s* '(' number ',' s* number ')' s* '[' number '|' number ']' s* phrase s* ECU_TOKEN (',' ECU_TOKEN)* > NewLine
 val_entry               <- < 'VAL_TABLE_' s* TOKEN s (number_phrase_pair)* ';' > NewLine
 number_phrase_pair      <- number s phrase s
 phrase                  <- < '"' (!'"' .)* '"' >
@@ -46,7 +46,7 @@ number                  <- float / integer
 integer                 <- < sign? [0-9]+ > _
 float                   <- < sign? ([0-9]+'.')?[0-9]+('E' sign [0-9]+)? > _
 symbol_name             <- < s* TOKEN > NewLine
-mux                     <- 'M'
+muxer                   <- 'M'
 mux_ndx                 <- 'm'< [0-9]+ >
 
 EndOfFile               <- !.

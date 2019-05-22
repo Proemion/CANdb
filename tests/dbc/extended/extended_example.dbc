@@ -1,0 +1,134 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: DBG DRIVER IO MOTOR SENSOR Vector_XXX
+
+
+BO_ 2364473086 VECTOR_INDEPENDENT_SIG_MSG: 2 Vector__XXX
+ SG_ SENSOR_SONARS_mux : 0|4@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SENSOR_SONARS_err_count : 0|12@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SENSOR_SONARS_left : 0|12@1+ (0.1,0) [0|0] "" Vector__XXX
+ SG_ SENSOR_SONARS_middle : 0|12@1+ (0.1,0) [0|0] "" Vector__XXX
+ SG_ SENSOR_SONARS_right : 0|12@1+ (0.1,0) [0|0] "" Vector__XXX
+ SG_ SENSOR_SONARS_rear : 0|12@1+ (0.1,0) [0|0] "" Vector__XXX
+ SG_ SENSOR_SONARS_no_filt_left : 0|12@1+ (0.1,0) [0|0] "" Vector__XXX
+ SG_ SENSOR_SONARS_no_filt_middle : 0|12@1+ (0.1,0) [0|0] "" Vector__XXX
+ SG_ SENSOR_SONARS_no_filt_right : 0|12@1+ (0.1,0) [0|0] "" Vector__XXX
+ SG_ SENSOR_SONARS_no_filt_rear : 0|12@1+ (0.1,0) [0|0] "" Vector__XXX
+
+BO_ 100 DRIVER_HEARTBEAT: 8 DRIVER
+ SG_ DRIVER_HEARTBEAT_cmd : 0|8@1+ (1,0) [0|255] ""  SENSOR,MOTOR
+ SG_ TEST_123 : 65|16@1+ (1,0) [0|0] ""  SENSOR,MOTOR
+
+BO_ 500 IO_DEBUG: 4 IO
+ SG_ IO_DEBUG_test_unsigned : 0|8@1+ (1,0) [0|255] ""  DBG
+ SG_ IO_DEBUG_test_enum : 8|8@1+ (1,0) [0|0] ""  DBG
+ SG_ IO_DEBUG_test_signed : 17|7@1- (1.5,0) [-96|94.5] ""  DBG
+ SG_ IO_DEBUG_test_float : 24|8@1- (0.5,0) [0|127.5] ""  DBG
+
+BO_ 101 MOTOR_CMD: 2 DRIVER
+ SG_ MOTOR_CMD_steer : 0|4@1- (1,-5) [-5|5] ""  MOTOR
+ SG_ MOTOR_CMD_drive : 4|4@1+ (1,0) [0|9] ""  MOTOR
+ SG_ MOTOR_STATUS_wheel_error : 8|1@1+ (1,0) [0|1] ""  DRIVER,IO
+
+BO_ 400 MOTOR_STATUS: 8 MOTOR
+ SG_ MOTOR_STATUS_wheel_error : 0|1@1+ (1,0) [0|1] ""  DRIVER,IO
+ SG_ MOTOR_STATUS_speed_kph : 6|16@1- (1,0) [-32768|32767] "kph"  DRIVER,IO
+
+BO_ 123 FUEL_STATUS: 8 MOTOR
+ SG_ FUEL_STATUS_level : 0|32@1+ (1,0) [-3.4E+038|3.4E+038] ""  DRIVER,IO
+
+BO_ 200 SENSOR_SONARS: 8 SENSOR
+ SG_ SENSOR_SONARS_mux M : 0|4@1+ (1,0) [0|0] ""  DRIVER,IO
+ SG_ SENSOR_SONARS_err_count : 4|12@1+ (1,0) [0|0] ""  DRIVER,IO
+ SG_ SENSOR_SONARS_left m0 : 16|12@1+ (0.1,0) [0|0] ""  DRIVER,IO
+ SG_ SENSOR_SONARS_middle m0 : 28|12@1+ (0.1,0) [0|0] ""  DRIVER,IO
+ SG_ SENSOR_SONARS_right m0 : 40|12@1+ (0.1,0) [0|0] ""  DRIVER,IO
+ SG_ SENSOR_SONARS_rear m0 : 52|12@1+ (0.1,0) [0|0] ""  DRIVER,IO
+ SG_ SENSOR_SONARS_no_filt_left m1 : 16|12@1+ (0.1,0) [0|0] ""  DBG
+ SG_ SENSOR_SONARS_no_filt_middle m1 : 28|12@1+ (0.1,0) [0|0] ""  DBG
+ SG_ SENSOR_SONARS_no_filt_right m1 : 40|12@1+ (0.1,0) [0|0] ""  DBG
+ SG_ SENSOR_SONARS_no_filt_rear m1 : 52|12@1+ (0.1,0) [0|0] ""  DBG
+
+BO_ 222 SENSOR_TWO_SONARS: 8 SENSOR
+ SG_ SENSOR_TWO_SONARS_mux M : 0|4@1+ (1,0) [0|0] ""  DRIVER,IO
+ SG_ SENSOR_TWO_SONARS_err_count : 4|44@1+ (1,0) [0|0] ""  DRIVER,IO
+ SG_ SENSOR_TWO_SONARS_left m0 : 48|12@1+ (0.1,0) [0|0] ""  DRIVER,IO
+ SG_ SENSOR_TWO_SONARS_middle m0 : 60|4@1+ (0.1,0) [0|0] ""  DRIVER,IO
+ SG_ SENSOR_TWO_SONARS_no_filt_left m1 : 48|12@1+ (0.1,0) [0|0] ""  DBG
+ SG_ SENSOR_TWO_SONARS_no_filt_middle m1 : 60|4@1+ (0.1,0) [0|0] ""  DBG
+ SG_ SENSOR_TWO_SONARS_hier m55 : 48|12@1+ (0.1,0) [0|0] ""  DRIVER,IO
+ SG_ SENSOR_TWO_SONARS_da m55 : 60|4@1+ (0.1,0) [0|0] ""  DRIVER,IO
+
+BO_ 1845 TemperatureMsg: 8 Vector__XXX
+ SG_ MultiplexIndexSignal M : 39|4@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ NormalSignalAlwaysPresent : 16|4@1- (1,0) [0|0] "" Vector__XXX
+ SG_ TemperatureIndoorsMultiplexed m0 : 7|16@0- (0.1,-40) [0|0] "degC" Vector__XXX
+ SG_ TemperatureOutdoorsMultiplexed m3 : 7|16@0- (0.1,-40) [0|0] "degC" Vector__XXX
+ SG_ TemperatureUndergroundMultiplexd m11 : 7|16@0- (0.1,-40) [0|0] "degC" Vector__XXX
+
+BO_TX_BU_ 500 : DRIVER,IO;
+
+
+CM_ BU_ DRIVER "The driver controller driving the car";
+CM_ BU_ MOTOR "The motor controller of the car";
+CM_ BU_ SENSOR "The sensor controller of the car";
+CM_ BO_ 2364473086 "This is a message for not used signals, created by Vector CANdb++ DBC OLE DB Provider.";
+CM_ BO_ 100 "Sync message used to synchronize the controllers";
+CM_ BO_ 400 "Comment on message";
+CM_ SG_ 400 MOTOR_STATUS_speed_kph "Comment on signal";
+BA_DEF_ BO_  "GenMsgDelayTime" INT 0 0;
+BA_DEF_ SG_  "GenSigStartValue" INT 0 0;
+BA_DEF_  "BusType" STRING ;
+BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
+BA_DEF_ SG_  "FieldType2" STRING ;
+BA_DEF_DEF_  "GenMsgDelayTime" 0;
+BA_DEF_DEF_  "GenSigStartValue" 0;
+BA_DEF_DEF_  "BusType" "CAN";
+BA_DEF_DEF_  "GenMsgCycleTime" 0;
+BA_DEF_DEF_  "FieldType2" "";
+BA_ "GenMsgCycleTime" BO_ 100 1000;
+BA_ "GenMsgCycleTime" BO_ 500 100;
+BA_ "GenMsgCycleTime" BO_ 101 100;
+BA_ "GenMsgCycleTime" BO_ 400 100;
+BA_ "FieldType2" SG_ 100 DRIVER_HEARTBEAT_cmd "DRIVER_HEARTBEAT_cmd";
+BA_ "GenSigStartValue" SG_ 100 DRIVER_HEARTBEAT_cmd 3;
+BA_ "GenSigStartValue" SG_ 500 IO_DEBUG_test_unsigned 12;
+BA_ "FieldType2" SG_ 500 IO_DEBUG_test_enum "IO_DEBUG_test_enum";
+BA_ "GenSigStartValue" SG_ 500 IO_DEBUG_test_signed 0;
+BA_ "GenSigStartValue" SG_ 500 IO_DEBUG_test_float 0;
+VAL_ 100 DRIVER_HEARTBEAT_cmd 2 "DRIVER_HEARTBEAT_cmd_REBOOT" 1 "DRIVER_HEARTBEAT_cmd_SYNC" 0 "DRIVER_HEARTBEAT_cmd_NOOP" ;
+VAL_ 500 IO_DEBUG_test_enum 2 "IO_DEBUG_test2_enum_two" 1 "IO_DEBUG_test2_enum_one" ;
+SIG_VALTYPE_ 123 FUEL_STATUS_level : 1;

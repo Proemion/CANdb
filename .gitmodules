@@ -1,18 +1,18 @@
 [submodule "3rdParty/spdlog"]
 	path = 3rdParty/spdlog
-	url = https://github.com/gabime/spdlog.git
+	url = https://github.com/Proemion/spdlog.git
 [submodule "3rdParty/cpp-peglib"]
 	path = 3rdParty/cpp-peglib
-	url = https://github.com/yhirose/cpp-peglib.git
+	url = https://github.com/Proemion/cpp-peglib.git
 [submodule "3rdParty/gtest"]
 	path = 3rdParty/gtest
-	url = https://github.com/google/googletest.git
+	url = https://github.com/Proemion/googletest.git
 [submodule "tests/dbc/opendbc"]
 	path = tests/dbc/opendbc
-	url = https://github.com/commaai/opendbc.git
+	url = https://github.com/Proemion/opendbc.git
 [submodule "3rdParty/cxxopts"]
 	path = 3rdParty/cxxopts
-	url = https://github.com/jarro2783/cxxopts.git
+	url = https://github.com/Proemion/cxxopts.git
 [submodule "3rdParty/cereal"]
 	path = 3rdParty/cereal
-	url = https://github.com/USCiLab/cereal.git
+	url = https://github.com/Proemion/cereal.git

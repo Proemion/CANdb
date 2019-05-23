@@ -393,7 +393,11 @@ bool DBCParser::parse(const std::string& data) noexcept
         auto valueSigned = take_back(signs) == "-";
 
         CANsignalMuxType sigMuxType;
-        boost::optional<std::uint16_t> sigMuxNdx;
+        // This overboard initialization is a workaround for a bug in GCC < 5.1.
+        // See the Boost.Optional documentation regarding false positives with
+        // -Wmaybe-uninitialized.
+        boost::optional<std::uint16_t> sigMuxNdx =
+            boost::make_optional(false, std::uint16_t());
 
         if (muxType == CANsignalMuxType::Muxed) {
             sigMuxType = CANsignalMuxType::Muxed;
@@ -411,6 +415,11 @@ bool DBCParser::parse(const std::string& data) noexcept
         }
 
         auto endianness = take_back(numbers);
+        // Silence a buggy compiler warning in older versions of GCC that claim
+        // this variable is set but unused, despite being used to create a new
+        // signal below.
+        (void)endianness;
+
         auto signalSize = take_back(numbers);
         auto startBit = take_back(numbers);
 

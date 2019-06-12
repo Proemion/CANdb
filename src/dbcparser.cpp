@@ -3,6 +3,7 @@
 #include <dbc_grammar.hpp>
 
 #include <fstream>
+#include <sstream>
 #include <peglib.h>
 
 #include <boost/algorithm/string/classification.hpp>
@@ -313,7 +314,12 @@ bool DBCParser::parse(const std::string& data) noexcept
 
     parser["number"] = [&numbers](const peg::SemanticValues& sv) {
         try {
-            auto number = std::stod(sv.token(), nullptr);
+            // We use std::istringstream here instead of the simpler std::stod
+            // to get around issues with locales, for instance in which a
+            // number is decimal-separated in a comma-separated locale
+            std::double_t number = 0.0;
+            std::istringstream stodStream(sv.token());
+            stodStream >> number;
             cdb_trace("Found number {}", number);
             numbers.push_back(number);
         } catch (const std::exception&) {

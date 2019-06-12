@@ -446,6 +446,10 @@ bool DBCParser::parse(const std::string& data) noexcept
 
         ecu_tokens.clear();
         signs.clear();
+        phrases.clear();
+
+        // Don't clear idents or numbers here, as they still contain values
+        // for this signal's message.
     };
 
     parser["bo_tx_bu"] = [&numbers, &ecu_tokens, this]

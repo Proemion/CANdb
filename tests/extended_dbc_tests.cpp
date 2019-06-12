@@ -165,7 +165,7 @@ TEST_P(ExtendedDBCTest, parse_dbc_file)
                 { CANmessage{123, "FUEL_STATUS", 8, {"MOTOR"}, boost::none,
                     boost::none},
                     { CANsignal{"FUEL_STATUS_level", 0, 32,
-                          CANsignalEndianness::LittleEndianIntel, false, 1, 0,
+                          CANsignalEndianness::LittleEndianIntel, true, 1, 0,
                           -3.4E+038, 3.4E+038, "", {"DRIVER", "IO"},
                           CANsignalMuxType::NotMuxed, boost::none,
                           boost::none, boost::none, CANsignalType::Float,

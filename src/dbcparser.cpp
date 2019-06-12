@@ -396,7 +396,10 @@ bool DBCParser::parse(const std::string& data) noexcept
         auto min = take_back(numbers);
         auto offset = take_back(numbers);
         auto factor = take_back(numbers);
-        auto valueSigned = take_back(signs) == "-";
+        // The sign that indicates whether or not the value is signed will
+        // be at the top of the stack, because signs may have been present
+        // in min, max, offset or factor
+        auto valueSigned = take_first(signs) == "-";
 
         CANsignalMuxType sigMuxType;
         // This overboard initialization is a workaround for a bug in GCC < 5.1.
@@ -440,7 +443,13 @@ bool DBCParser::parse(const std::string& data) noexcept
 
         muxType = CANsignalMuxType::NotMuxed;
         muxNdx = -1;
+
         ecu_tokens.clear();
+        signs.clear();
+        phrases.clear();
+
+        // Don't clear idents or numbers here, as they still contain values
+        // for this signal's message.
     };
 
     parser["bo_tx_bu"] = [&numbers, &ecu_tokens, this]
